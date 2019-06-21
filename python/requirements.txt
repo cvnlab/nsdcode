@@ -11,3 +11,4 @@ ww
 numba
 tqdm
 joblib
+nibabel
