@@ -313,7 +313,8 @@ def nsd_mapdata(subjix,
     elif casenum == 3:    # nativesurface-to-fsaverage  or  fsaverage-to-nativesurface
         
         # use nearest-neighbor and set the output class
-        transformeddata = sourcedata[a1,:].astype(outputclass)
+        transformeddata = sourcedata[a1-1,:].astype(outputclass) 
+        # matlab based indexing in a1: 0-based in python
   
         # if user wants a file, write it out
         if outputfile is not None:
@@ -328,7 +329,7 @@ def nsd_mapdata(subjix,
         
         # if user wants a file, write it out
         if outputfile is not None:
-            
+
             nsd_write_fs(transformeddata, outputfile, fsdir)
         
         """
