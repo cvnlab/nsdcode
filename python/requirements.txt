@@ -2,13 +2,7 @@ numpy
 scipy
 sklearn
 matplotlib
-twine
-sphinx
 seaborn
-pybids==0.8.0
-duecredit
-ww
-numba
 tqdm
-joblib
 nibabel
+neuropythy
