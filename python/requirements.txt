@@ -1,8 +1,4 @@
 numpy
 scipy
-sklearn
 matplotlib
-seaborn
-tqdm
 nibabel
-neuropythy

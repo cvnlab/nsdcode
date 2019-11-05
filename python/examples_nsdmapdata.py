@@ -1,9 +1,9 @@
 import os
 import numpy as np
 import nibabel as nib
-from nsd_mapdata.nsd_mapdata import nsd_mapdata
-from nsd_mapdata.nsd_datalocation import nsd_datalocation
-from nsd_mapdata.utils import makeimagestack
+from mapdata.nsd_mapdata import nsd_mapdata
+from mapdata.nsd_datalocation import nsd_datalocation
+from mapdata.utils import makeimagestack
 import matplotlib.pyplot as plt 
 import matplotlib.cm as cm
 

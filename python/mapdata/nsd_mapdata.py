@@ -2,9 +2,9 @@ import os
 import numpy as np
 import nibabel as nib
 import nibabel.freesurfer.mghformat as fsmgh
-from nsd_datalocation import nsd_datalocation
-from nsd_output import nsd_write_vol, nsd_write_fs
-from interp_wrapper import interp_wrapper as iw
+from mapdata.nsd_datalocation import nsd_datalocation
+from mapdata.nsd_output import nsd_write_vol, nsd_write_fs
+from mapdata.interp_wrapper import interp_wrapper as iw
 
 def nsd_mapdata(subjix,
                 sourcespace,
@@ -247,7 +247,7 @@ def nsd_mapdata(subjix,
         # construct coordinates
         coords = np.c_[a1[:, :, :, 0].ravel(order='F'), 
                        a1[:, :, :, 1].ravel(order='F'), 
-                       a1[:, :, :, 2].ravel(order='F')].T(order='F')
+                       a1[:, :, :, 2].ravel(order='F')].T
         # ensure that 9999 locations will propagate as NaN
         coords[np.where(coords == 9999)] = np.nan
         coords = coords - 1 # coords is based on Kendrick's 1-based indexing.
@@ -284,7 +284,7 @@ def nsd_mapdata(subjix,
         # construct coordinates
         coords = np.c_[a1[:, 0].ravel(order='F'), 
                        a1[:, 1].ravel(order='F'), 
-                       a1[:, 2].ravel(order='F')].T(order='F')
+                       a1[:, 2].ravel(order='F')].T
         coords[np.where(coords==9999)] = np.nan  # ensure that 9999 locations will propagate as NaN
         coords = coords - 1 # coords is based on Kendrick's 1-based indexing.
 

@@ -1,11 +1,6 @@
 import numpy as np
 from scipy.ndimage import map_coordinates
-from utils import isnotfinite
-
-def isnotfinite(arr):
-    res = np.isfinite(arr)
-    np.bitwise_not(res, out=res)  # in-place
-    return res
+from mapdata.utils import isnotfinite
 
 
 def interp_wrapper(vol, coords, interptype=None):
