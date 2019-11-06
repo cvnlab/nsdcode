@@ -68,6 +68,8 @@ def interp_wrapper(vol, coords, interptype=None):
         order=1
     elif interptype == 'nearest':
         order=0
+    else:
+        raise ValueError('interpolation method not implemented.')
     
     # convert vol to float (needed)
     # vol = vol.astype(np.float32)
@@ -132,7 +134,7 @@ def interp_wrapper(vol, coords, interptype=None):
 
         # this is the usual easy case
         else:
-
+            # consider using mode constant with a cval.
             transformeddata = map_coordinates(np.nan_to_num(vol).astype(np.float64), coords, order=order, mode='nearest')
             transformeddata[bad] = np.nan
        

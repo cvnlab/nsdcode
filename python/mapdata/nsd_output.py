@@ -3,40 +3,31 @@ import numpy as np
 import nibabel as nib
 import nibabel.freesurfer.mghformat as fsmgh
 
-def nsd_write_vol(data, target_img, outputfile, outputtype):
 
-    n_dims = data.ndim
+def nsd_write_vol(data, res, outputfile, origin=None):
 
-    if n_dims==4:
-        # we need to change some vals in the header to write a 4D nifti
-        """
-        TODO
-        """
-        pass
-    else:        
-
-        if outputtype == 'MNI':
-            """ 
-            TODO
-            # in the case of the target being MNI, we are going to write out LPI NIFTIs.
-            # so, we have to flip the first dimension so that the first voxel is indeed
-            # Left. also, in ITK-SNAP, the MNI template has world (ITK) coordinates at
-            # (0,0,0) which corresponds to voxel coordinates (91,127,73). These voxel
-            # coordinates are relative to RPI. So, for the origin of our LPI file that
-            # we will write, we need to make sure that we "flip" the first coordinate.
-            # The MNI volume has dimensions [182 218 182], so we subtract the first
-            # coordinate from 183.
-            transformeddata = flipdim(transformeddata,1);  # now, it's in LPI
-            origin = [183-91 127 73]
-            """
-            pass
+    data_class = data.dtype
         
-        elif outputtype == 'native':
+    # create a default header
+    header = nib.Nifti1Header()
+    header.set_data_dtype(data_class)
 
-            img = nib.Nifti1Image(data,
-            target_img.affine, target_img.header)
+    # affine
+    affine = np.diag([res]*3 + [1])
+    if origin is not None:
+        affine[0,-1] = -origin[0]*res
+        affine[1,-1] = -origin[1]*res
+        affine[2,-1] = -origin[2]*res
+    else:
+        raise ValueError('i need to specify an origin in the affine.')
 
-            img.to_filename(outputfile)
+
+    # write the nifti volume
+    img = nib.Nifti1Image(data,
+                        affine,
+                        header)
+
+    img.to_filename(outputfile)
 
 def nsd_write_fs(data, outputfile, fsdir):
 

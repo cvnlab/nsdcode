@@ -134,7 +134,7 @@ def nsd_mapdata(subjix,
     
     # set default badval
     if badval is None:
-        badval = np.nan
+        badval = 0
 
     # figure out what case we are in
     if sourcespace == 'fsaverage' or targetspace == 'fsaverage':
@@ -207,11 +207,13 @@ def nsd_mapdata(subjix,
     # load sourcedata
     if casenum == 1 or casenum == 2 or casenum == 3:
         if sourcedata[-4:] == '.mgz':
-            sourcedata = nib.load(sourcedata).get_data()
+            source_img = nib.load(sourcedata) 
+            sourcedata = source_img.get_data()
             sourcedata = sourcedata.reshape([sourcedata.shape[0], -1], order='F') # squish
             # sourcedata = squish(load_mgh(sourcedata),3);              # V x D
         else:
-            sourcedata = nib.load(sourcedata).get_data()
+            source_img = nib.load(sourcedata) 
+            sourcedata = source_img.get_data()
             # X x Y x Z x D
 
     elif casenum == 4:
@@ -261,6 +263,9 @@ def nsd_mapdata(subjix,
                 tmp[np.isnan(tmp)] = badval
                 tmp = np.reshape(tmp, targetshape, order='F')
                 transformeddata.append(tmp)
+            
+            # reshape as a 4d volume
+            transformeddata = np.moveaxis(np.asarray(transformeddata),0, -1) 
         else:
 
             transformeddata = iw(sourcedata, coords, interptype=interptype).astype(outputclass)
@@ -270,14 +275,26 @@ def nsd_mapdata(subjix,
         # if user wants a file, write it out
         if outputfile is not None:
             if targetspace == 'MNI':
+                print('saving image in MNI space')
+                """ 
+                # in the case of the target being MNI, we are going to write out LPI NIFTIs.
+                # so, we have to flip the first dimension so that the first voxel is indeed
+                # Left. also, in ITK-SNAP, the MNI template has world (ITK) coordinates at
+                # (0,0,0) which corresponds to voxel coordinates (91,127,73). These voxel
+                # coordinates are relative to RPI. So, for the origin of our LPI file that
+                # we will write, we need to make sure that we "flip" the first coordinate.
+                # The MNI volume has dimensions [182 218 182], so we subtract the first
+                # coordinate from 183.
+                transformeddata = flipdim(transformeddata,1);  # now, it's in LPI
+                origin = [183-91 127 73]
+                """
+                transformeddata = np.flip(transformeddata, axis=0)
+                origin = np.asarray([183-91, 127, 73])-1 # consider -1 here.
 
-                outputtype = 'MNI'
-                
-            else:
-                
-                outputtype = 'native'
+            else:                
+                origin = (([1, 1, 1]+np.asarray(transformeddata.shape))/2)-1
 
-            nsd_write_vol(transformeddata, a1_img, outputfile, outputtype)   
+            nsd_write_vol(transformeddata, voxelsize, outputfile, origin=origin)
         
     elif casenum==2:    # volume-to-nativesurface
 
@@ -298,6 +315,8 @@ def nsd_mapdata(subjix,
                 tmp[np.isnan(tmp)] = badval
                 transformeddata.append(tmp)
 
+            # reshape as a n-dim volume
+            transformeddata = np.moveaxis(np.asarray(transformeddata),0, -1)
         else:
             transformeddata = iw(sourcedata, coords, interptype=interptype).astype(outputclass)
             transformeddata[np.isnan(transformeddata)] = badval

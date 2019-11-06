@@ -14,6 +14,8 @@ import matplotlib.cm as cm
 # fMRI results against the anatomy.
 subjix = 1
 nsd_dir = nsd_datalocation()
+nsd_betas = nsd_datalocation('betas')
+
 sourcedata = f'{nsd_dir}/ppdata/subj{subjix:02d}/anat/T1_0pt8_masked.nii.gz'
 sourcespace = 'anat0pt8'
 targetspace = 'func1pt8'
@@ -22,6 +24,27 @@ targetdata = nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype=in
 # show the resulting transform
 plt.imshow(makeimagestack(targetdata))
 
+# test case for comparing the matlab output
+import seaborn as sns
+import pandas as pd
+# testA.nii.gz was generated with the code above in example_nsdmapdata.m
+matlab_img = nib.load('testA.nii.gz').get_data()
+python_img = nib.load(f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz').get_data()
+
+d = {'matlab': matlab_img.ravel(),
+      'python':python_img.ravel()}
+
+df = pd.DataFrame(data=d)
+
+ax = sns.scatterplot(x="matlab", y="python", data=df)
+
+# let's test going from func1pt8mm to anat0pt8, but for a 4d-nifti
+sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1pt8mm/betas_fithrf_GLMdenoise_RR/betas_session01.nii.gz'  
+sourcespace = 'func1pt8'
+targetspace = 'anat0pt8'
+interpmethod = 'cubic'
+badval=0
+nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype='cubic',badval=0,outputfile='test4D.nii.gz')
 
 # To confirm correctness, compare the following:
 #   test-anat1pt8-func1pt8-cubic.nii.gz
@@ -39,7 +62,6 @@ targetdata = nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype=in
 plt.imshow(makeimagestack(targetdata))
 
 # test going from func1pt8 to anat0pt8
-nsd_betas = nsd_datalocation('betas')
 sourcespace = 'func1pt8'
 sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/{sourcespace}mm/betas_fithrf_GLMdenoise_RR/meanbeta_session01.nii.gz'
 
@@ -89,6 +111,7 @@ plt.imshow(makeimagestack(targetdata))
 sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1pt8mm/betas_fithrf_GLMdenoise_RR/R2_session01.nii.gz' 
 sourcespace = 'func1pt8'
 targetspace = 'MNI'
+interpmethod = 'cubic'
 nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype='cubic',badval=0,outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
 
 # To assess the results, compare the following:
@@ -160,7 +183,7 @@ nsd_mapdata(subjix,'func1pt0','lh.layerB3',sourcedata,'cubic',0,'lh.testD_layerB
 # mapped onto the lh.layerB2 surface, and the multiple surface-based outputs
 # are saved into a single .mgz file.
 sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1mm/betas_fithrf_GLMdenoise_RR/R2run_session01.nii.gz'  
-nsd_mapdata(subjix,'func1pt0','lh.layerB2',sourcedata,'cubic',0,'lh.testE.mgz',outputdir=None,fsdir=fsdir)
+nsd_mapdata(subjix,'func1pt0','lh.layerB2',sourcedata,'cubic',0,'lh.testE.mgz',outputclass=None,fsdir=fsdir)
 
 # We can also perform the mapping and omit having to write out a file to disk.
 # Instead, we obtain the results in our workspace.
