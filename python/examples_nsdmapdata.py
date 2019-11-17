@@ -154,10 +154,10 @@ nsd_mapdata(subjix,'func1pt0','lh.layerB2',sourcedata,'cubic',0,'lh.testD_layerB
 # let's repeat the above test, going from 1.8pt to to the vertices
 sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1pt8mm/betas_fithrf_GLMdenoise_RR/R2_session01.nii.gz'  
 sourcespace = 'func1pt8'
-targetspace = 'lh.layerB2'
+targetspace = 'lh.layerB1'
 interpmethod = 'cubic'
 badval=0
-nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype='cubic',badval=0,outputfile='lh.testD_layerB2.mgz',outputclass=None,fsdir=fsdir)
+nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype='cubic',badval=0,outputfile='lh.testD_layerB1.mgz',outputclass=None,fsdir=fsdir)
 
 
 # Let's repeat the same operation but sample the data onto the other two surfaces.

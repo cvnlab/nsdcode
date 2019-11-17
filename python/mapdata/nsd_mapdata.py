@@ -205,31 +205,35 @@ def nsd_mapdata(subjix,
         a1 = np.vstack(a1)
 
     # load sourcedata
-    if casenum == 1 or casenum == 2 or casenum == 3:
-        if sourcedata[-4:] == '.mgz':
-            source_img = nib.load(sourcedata) 
-            sourcedata = source_img.get_data()
-            sourcedata = sourcedata.reshape([sourcedata.shape[0], -1], order='F') # squish
-            # sourcedata = squish(load_mgh(sourcedata),3);              # V x D
-        else:
-            source_img = nib.load(sourcedata) 
-            sourcedata = source_img.get_data()
-            # X x Y x Z x D
-
-    elif casenum == 4:
-        sdatatemp = []
-        # sourcedata here could already be a list of volumes, or a list
-        # path pointing to volumes 
-        for p in sourcedata:
-            if isinstance(p, str):
-                temp = nib.load(p).get_data()
-                temp = temp.reshape([temp.shape[0], -1])
-                sdatatemp.append(temp)
-                # V-across-differentsurfaces x D
+    
+    if np.asarray(sourcedata).dtype == '<U4':
+        if casenum == 1 or casenum == 2 or casenum == 3:
+            if sourcedata[-4:] == '.mgz':
+                source_img = nib.load(sourcedata) 
+                sourcedata = source_img.get_data()
+                sourcedata = sourcedata.reshape([sourcedata.shape[0], -1], order='F') # squish
+                        # sourcedata = squish(load_mgh(sourcedata),3);              # V x D
             else:
-                sdatatemp.append(p)
+                source_img = nib.load(sourcedata) 
+                sourcedata = source_img.get_data()
+                # X x Y x Z x D
 
-        sourcedata = np.vstack(sdatatemp)
+        elif casenum == 4:
+            sdatatemp = []
+            # sourcedata here could already be a list of volumes, or a list
+            # path pointing to volumes 
+            for p in sourcedata:
+                if isinstance(p, str):
+                    temp = nib.load(p).get_data()
+                    temp = temp.reshape([temp.shape[0], -1])
+                    sdatatemp.append(temp)
+                    # V-across-differentsurfaces x D
+                else:
+                    sdatatemp.append(p)
+
+            sourcedata = np.vstack(sdatatemp)
+    else:
+        print('data array passed')
 
     sourceclass = sourcedata.dtype
 

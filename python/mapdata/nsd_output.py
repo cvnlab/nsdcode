@@ -32,7 +32,14 @@ def nsd_write_vol(data, res, outputfile, origin=None):
 def nsd_write_fs(data, outputfile, fsdir):
 
         # load template
-        hemi = outputfile[:2]
+        # load template
+        if (outputfile.find('lh.') != -1):
+            hemi='lh'
+        elif (outputfile.find('rh.') != -1):
+            hemi='rh'
+        else:
+            raise ValueError('wrong outpufile.')
+        
         mgh0 = f'{fsdir}/surf/{hemi}.w-g.pct.mgh'
 
         img = fsmgh.load(mgh0)
