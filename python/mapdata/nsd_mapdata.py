@@ -206,7 +206,7 @@ def nsd_mapdata(subjix,
 
     # load sourcedata
     
-    if np.asarray(sourcedata).dtype == '<U4':
+    if isinstance(sourcedata, str):
         if casenum == 1 or casenum == 2 or casenum == 3:
             if sourcedata[-4:] == '.mgz':
                 source_img = nib.load(sourcedata) 
