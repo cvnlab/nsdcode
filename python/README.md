@@ -1,6 +1,10 @@
 # nsdcode
 Code related to analyzing the Natural Scenes Dataset (In Python)
 
+to install : 
+
+python setup.py develop
+
 =============================
 
 Code dependencies:
