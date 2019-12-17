@@ -1,3 +1,5 @@
+"""nsd_mapdata
+"""
 import os
 import numpy as np
 import nibabel as nib
@@ -23,7 +25,7 @@ def nsd_mapdata(subjix,
         sourcespace (['string']): is a string indicating the source space
                     (where the data currently are)
 
-        targetspace (['string']): is a string indicating target space 
+        targetspace (['string']): is a string indicating target space
                     (where the data need to go)
 
         sourcedata ([array or file]):
@@ -130,8 +132,8 @@ def nsd_mapdata(subjix,
 
     # set default interptype
     if interptype is None:
-        interptype='cubic'
-    
+        interptype = 'cubic'
+
     # set default badval
     if badval is None:
         badval = 0
@@ -205,7 +207,7 @@ def nsd_mapdata(subjix,
         a1 = np.vstack(a1)
 
     # load sourcedata
-    
+
     if isinstance(sourcedata, str):
         if casenum == 1 or casenum == 2 or casenum == 3:
             if sourcedata[-4:] == '.mgz':
@@ -246,7 +248,7 @@ def nsd_mapdata(subjix,
 
     # do it
     if casenum == 1:    # volume-to-volume
-        
+
         x, y, z, _ = a1.shape
         targetshape = (x, y, z)
 
@@ -280,7 +282,8 @@ def nsd_mapdata(subjix,
         if outputfile is not None:
             if targetspace == 'MNI':
                 print('saving image in MNI space')
-                """ 
+                
+                """
                 # in the case of the target being MNI, we are going to write out LPI NIFTIs.
                 # so, we have to flip the first dimension so that the first voxel is indeed
                 # Left. also, in ITK-SNAP, the MNI template has world (ITK) coordinates at
@@ -289,13 +292,14 @@ def nsd_mapdata(subjix,
                 # we will write, we need to make sure that we "flip" the first coordinate.
                 # The MNI volume has dimensions [182 218 182], so we subtract the first
                 # coordinate from 183.
-                transformeddata = flipdim(transformeddata,1);  # now, it's in LPI
-                origin = [183-91 127 73]
+                # transformeddata = flipdim(transformeddata,1);  # now, it's in LPI
+                # origin = [183-91 127 73]
+
                 """
                 transformeddata = np.flip(transformeddata, axis=0)
                 origin = np.asarray([183-91, 127, 73])-1 # consider -1 here.
 
-            else:                
+            else:            
                 origin = (([1, 1, 1]+np.asarray(transformeddata.shape))/2)-1
 
             nsd_write_vol(transformeddata, voxelsize, outputfile, origin=origin)

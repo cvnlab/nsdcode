@@ -1,11 +1,16 @@
+"""
+examples to use mapdata
+"""
 import os
 import numpy as np
 import nibabel as nib
-from mapdata.nsd_mapdata import nsd_mapdata
-from mapdata.nsd_datalocation import nsd_datalocation
-from mapdata.utils import makeimagestack
 import matplotlib.pyplot as plt 
 import matplotlib.cm as cm
+from mapdata.nsd_mapdata import nsd_mapdata
+from mapdata.nsd_datalocation import nsd_datalocation
+from mapdata.nsd_output import nsd_write_vol, nsd_write_fs
+from mapdata.utils import makeimagestack
+
 
 ## Map T1 anatomical to EPI space
 
@@ -20,31 +25,44 @@ sourcedata = f'{nsd_dir}/ppdata/subj{subjix:02d}/anat/T1_0pt8_masked.nii.gz'
 sourcespace = 'anat0pt8'
 targetspace = 'func1pt8'
 interpmethod = 'cubic'
-targetdata = nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype=interpmethod,badval=0, outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
+targetdata = nsd_mapdata(
+    subjix,
+    sourcespace,
+    targetspace,
+    sourcedata,
+    interptype=interpmethod,
+    badval=0,
+    outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
+
 # show the resulting transform
 plt.imshow(makeimagestack(targetdata))
 
+"""
 # test case for comparing the matlab output
 import seaborn as sns
 import pandas as pd
+compare matlab and python
 # testA.nii.gz was generated with the code above in example_nsdmapdata.m
 matlab_img = nib.load('testA.nii.gz').get_data()
 python_img = nib.load(f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz').get_data()
-
 d = {'matlab': matlab_img.ravel(),
-      'python':python_img.ravel()}
-
+     'python':python_img.ravel()}
 df = pd.DataFrame(data=d)
-
 ax = sns.scatterplot(x="matlab", y="python", data=df)
-
+"""
 # let's test going from func1pt8mm to anat0pt8, but for a 4d-nifti
 sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1pt8mm/betas_fithrf_GLMdenoise_RR/betas_session01.nii.gz'  
 sourcespace = 'func1pt8'
 targetspace = 'anat0pt8'
 interpmethod = 'cubic'
-badval=0
-nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype='cubic',badval=0,outputfile='test4D.nii.gz')
+nsd_mapdata(
+    subjix,
+    sourcespace,
+    targetspace,
+    sourcedata,
+    interptype='cubic',
+    badval=0,
+    outputfile='test4D.nii.gz')
 
 # To confirm correctness, compare the following:
 #   test-anat1pt8-func1pt8-cubic.nii.gz
@@ -52,12 +70,28 @@ nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype='cubic',badval=
 
 
 interpmethod = 'nearest'
-targetdata = nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype=interpmethod,badval=0, outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
+targetdata = nsd_mapdata(
+    subjix,
+    sourcespace,
+    targetspace,
+    sourcedata,
+    interptype=interpmethod,
+    badval=0, 
+    outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
+
 # show the resulting transform
 plt.imshow(makeimagestack(targetdata))
 
 interpmethod = 'linear'
-targetdata = nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype=interpmethod,badval=0, outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
+targetdata = nsd_mapdata(
+    subjix,
+    sourcespace,
+    targetspace,
+    sourcedata,
+    interptype=interpmethod,
+    badval=0,
+    outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
+
 # show the resulting transform
 plt.imshow(makeimagestack(targetdata))
 
@@ -67,44 +101,80 @@ sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/{sourcespace}mm/betas_fithrf_
 
 targetspace = 'anat0pt8'
 interpmethod = 'cubic'
-targetdata = nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype=interpmethod,badval=0, outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
+targetdata = nsd_mapdata(
+    subjix,
+    sourcespace,
+    targetspace,
+    sourcedata,
+    interptype=interpmethod,
+    badval=0,
+    outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
+
 # show the resulting transform
-plt.imshow(makeimagestack(targetdata.astype(np.float32)/300),vmin=-5, vmax=5., cmap='RdBu_r')
+plt.imshow(makeimagestack(targetdata.astype(np.float32)/300), vmin=-5, vmax=5., cmap='RdBu_r')
 
 interpmethod = 'nearest'
-targetdata = nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype=interpmethod,badval=0, outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
+targetdata = nsd_mapdata(
+    subjix,
+    sourcespace,
+    targetspace,
+    sourcedata,
+    interptype=interpmethod,
+    badval=0,
+    outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
+
 # show the resulting transform
-plt.imshow(makeimagestack(targetdata.astype(np.float32)/300),vmin=-5, vmax=5., cmap='RdBu_r')
+plt.imshow(makeimagestack(targetdata.astype(np.float32)/300), vmin=-5, vmax=5., cmap='RdBu_r')
 
 interpmethod = 'linear'
-targetdata = nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype=interpmethod,badval=0, outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
+targetdata = nsd_mapdata(
+    subjix,
+    sourcespace,
+    targetspace,
+    sourcedata,
+    interptype=interpmethod,
+    badval=0,
+    outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
+
 # show the resulting transform
-plt.imshow(makeimagestack(targetdata.astype(np.float32)/300),vmin=-5, vmax=5., cmap='RdBu_r')
+plt.imshow(makeimagestack(targetdata.astype(np.float32)/300), vmin=-5, vmax=5., cmap='RdBu_r')
 
 # test anat going from func1pt8 to anat0pt8
 sourcespace = 'func1pt8'
 sourcedata = f'{nsd_dir}/ppdata/subj{subjix:02d}/{sourcespace}mm/mean.nii.gz'
 targetspace = 'anat0pt8'
 interpmethod = 'cubic'
-targetdata = nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype=interpmethod,badval=0, outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
+targetdata = nsd_mapdata(
+    subjix,
+    sourcespace,
+    targetspace,
+    sourcedata,
+    interptype=interpmethod,
+    badval=0,
+    outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
+
 # show the resulting transform
 plt.imshow(makeimagestack(targetdata), cmap='RdBu_r')
 
 
 ## Map EPI results to MNI space
-
 # Here we take the variance explained (R2) value obtained for the "betas_fithrf_GLMdenoise_RR"
 # GLM model in the first NSD session in the high-resolution 1-mm functional preparation,
 # and map this to MNI space (which has 1-mm resolution).
-subjix = 1
+
 sourcespace = 'func1pt0'
 sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1mm/betas_fithrf_GLMdenoise_RR/R2_session01.nii.gz' 
 targetspace = 'MNI'
-"""
-TODO: TEST IN KENDRICK'S SHOP
-targetdata = nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype='cubic',badval=0,outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
+targetdata = nsd_mapdata(
+    subjix,
+    sourcespace,
+    targetspace,
+    sourcedata,
+    interptype='cubic',
+    badval=0,
+    outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
+
 plt.imshow(makeimagestack(targetdata))
-"""
 
 # For comparison, we repeat the same operation but for the low-resolution
 # 1.8-mm functional preparation.
@@ -112,7 +182,14 @@ sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1pt8mm/betas_fithrf_GLMde
 sourcespace = 'func1pt8'
 targetspace = 'MNI'
 interpmethod = 'cubic'
-nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype='cubic',badval=0,outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
+nsd_mapdata(
+    subjix,
+    sourcespace,
+    targetspace,
+    sourcedata,
+    interptype=interpmethod,
+    badval=0,
+    outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
 
 # To assess the results, compare the following:
 #   templates/MNI152_T1_1mm.nii.gz
@@ -122,14 +199,29 @@ nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype='cubic',badval=
 
 # To confirm sanity of the transformations, we can repeat the transformations for the
 # mean EPI volume in the two different functional preparations.
-"""
-TODO : TEST IN KENDRICK'S SHOP
 sourcedata = f'{nsd_dir}/ppdata/subj{subjix:02d}/func1mm/mean_session01.nii.gz'
-nsd_mapdata(subjix,'func1pt0','MNI',sourcedata,'cubic',0,'testC_1mm.nii.gz')
-"""
+sourcespace = 'func1pt0'
+targetspace = 'MNI'
+interpmethod = 'cubic'
+nsd_mapdata(
+    subjix,
+    sourcespace,
+    targetspace,
+    sourcedata,
+    interptype=interpmethod,
+    badval=0,
+    outputfile='testC_1pt8mm.nii.gz')
+
 
 sourcedata = f'{nsd_dir}/ppdata/subj{subjix:02d}/func1pt8mm/mean_session01.nii.gz'  
-nsd_mapdata(subjix,'func1pt8','MNI',sourcedata,'cubic',0,'testC_1pt8mm.nii.gz')
+nsd_mapdata(
+    subjix,
+    'func1pt8',
+    'MNI',
+    sourcedata,
+    'cubic',
+    badval=0,
+    outputfile='testC_1pt8mm.nii.gz')
 
 # Compare the above results to:
 #   testC_1mm.nii.gz
@@ -144,32 +236,62 @@ nsd_mapdata(subjix,'func1pt8','MNI',sourcedata,'cubic',0,'testC_1pt8mm.nii.gz')
 # This mapping is accomplished using a cubic interpolation of the data
 # at each surface vertex location.
 
-subjix = 1
 fsdir = os.path.join(nsd_datalocation(), 'freesurfer',f'subj{subjix:02d}')
-"""
-TODO : TEST IN KENDRICK'S SHOP
 sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1mm/betas_fithrf_GLMdenoise_RR/R2_session01.nii.gz'  
-nsd_mapdata(subjix,'func1pt0','lh.layerB2',sourcedata,'cubic',0,'lh.testD_layerB2.mgz',outputdir=None,fsdir=fsdir)
-"""
+nsd_mapdata(
+    subjix,
+    'func1pt0',
+    'lh.layerB2',
+    sourcedata,
+    'cubic',
+    badval=0,
+    outputfile='lh.testD_layerB2.mgz',
+    outputclass=None,
+    fsdir=fsdir)
+
+
 # let's repeat the above test, going from 1.8pt to to the vertices
 sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1pt8mm/betas_fithrf_GLMdenoise_RR/R2_session01.nii.gz'  
 sourcespace = 'func1pt8'
 targetspace = 'lh.layerB1'
 interpmethod = 'cubic'
-badval=0
-nsd_mapdata(subjix,sourcespace,targetspace,sourcedata,interptype='cubic',badval=0,outputfile='lh.testD_layerB1.mgz',outputclass=None,fsdir=fsdir)
+nsd_mapdata(
+    subjix,
+    sourcespace,
+    targetspace,
+    sourcedata,
+    interptype='cubic',
+    badval=0,
+    outputfile='lh.testD_layerB1.mgz',
+    outputclass=None,
+    fsdir=fsdir)
 
 
 # Let's repeat the same operation but sample the data onto the other two surfaces.
 # "layerB1", "layerB2", and "layerB3" correspond to 25%, 50%, and 75%
 # of the distance from the pial to the white-matter surfaces, respectively.
 
-"""
-TODO figure out why the interpolation of B1 and B3 doesn't produce a sane outcome (B2 works)
-"""
+nsd_mapdata(
+    subjix,
+    'func1pt0',
+    'lh.layerB1',
+    sourcedata,
+    'cubic',
+    badval=0,
+    outputfile='lh.testD_layerB1.mgz',
+    outputclass=None,
+    fsdir=fsdir)
 
-nsd_mapdata(subjix,'func1pt0','lh.layerB1',sourcedata,'cubic',0,'lh.testD_layerB1.mgz',outputclass=None,fsdir=fsdir)
-nsd_mapdata(subjix,'func1pt0','lh.layerB3',sourcedata,'cubic',0,'lh.testD_layerB3.mgz',outputclass=None,fsdir=fsdir)
+nsd_mapdata(
+    subjix,
+    'func1pt0',
+    'lh.layerB3',
+    sourcedata,
+    'cubic',
+    badval=0,
+    outputfile='lh.testD_layerB3.mgz',
+    outputclass=None,
+    fsdir=fsdir)
 
 # To assess the results, compare the following on the lh.inflated surface:
 #   lh.testD_layerB1.mgz
@@ -183,12 +305,28 @@ nsd_mapdata(subjix,'func1pt0','lh.layerB3',sourcedata,'cubic',0,'lh.testD_layerB
 # mapped onto the lh.layerB2 surface, and the multiple surface-based outputs
 # are saved into a single .mgz file.
 sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1mm/betas_fithrf_GLMdenoise_RR/R2run_session01.nii.gz'  
-nsd_mapdata(subjix,'func1pt0','lh.layerB2',sourcedata,'cubic',0,'lh.testE.mgz',outputclass=None,fsdir=fsdir)
+nsd_mapdata(
+    subjix,
+    'func1pt0',
+    'lh.layerB2',
+    sourcedata,
+    'cubic',
+    badval=0,
+    outputfile='lh.testE.mgz',
+    outputclass=None,
+    fsdir=fsdir)
 
 # We can also perform the mapping and omit having to write out a file to disk.
 # Instead, we obtain the results in our workspace.
-data = nsd_mapdata(subjix,'func1pt0','lh.layerB2',sourcedata,'cubic',0)
-plt.plot(np.median(data,axis=0))
+data = nsd_mapdata(
+    subjix,
+    'func1pt0',
+    'lh.layerB2',
+    sourcedata,
+    'cubic',
+    badval=0)
+
+plt.plot(np.median(data, axis=0))
 plt.xlabel('Run number')
 plt.ylabel('Median R2')
 ##
@@ -202,14 +340,31 @@ subjix = 1
 sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1pt8mm/betas_fithrf_GLMdenoise_RR/R2_session01.nii.gz'  
 data = []
 for p in range(3):
-  data.append(nsd_mapdata(subjix,'func1pt8','lh.layerB{}'.format(p+1),sourcedata,'cubic',0))
+    data.append(
+        nsd_mapdata(
+            subjix,
+            'func1pt8',
+            'lh.layerB{}'.format(p+1),
+            sourcedata,
+            'cubic',
+            badval=0
+        )
+    )
 
 data = np.vstack(np.asarray(data))
 
 # Now we average results across the three cortical depths and use nearest-neighbor
 # interpolation to bring the result to fsaverage.
-fsdir = os.path.join(nsd_datalocation, 'freesurfer','fsaverage')
-nsd_mapdata(subjix,'lh.white','fsaverage',np.mean(data,axis=1),interptype=None,badval=0,outputfile='lh.testF.mgz',fsdir=fsdir)
+fsdir = os.path.join(nsd_datalocation, 'freesurfer', 'fsaverage')
+nsd_mapdata(
+    subjix,
+    'lh.white',
+    'fsaverage',
+    np.mean(data, axis=1),
+    interptype=None,
+    badval=0,
+    outputfile='lh.testF.mgz',
+    fsdir=fsdir)
 
 # Assess the results by inspecting on fsaverage's lh.inflated surface:
 #   lh.testF.mgz
@@ -223,11 +378,22 @@ nsd_mapdata(subjix,'lh.white','fsaverage',np.mean(data,axis=1),interptype=None,b
 data = []
 for subjix in range(8):
     a1 = nib.load(f'{nsd_dir}/freesurfer/subj{subjix:02d}/surf/lh.curv').get_data()
-    data.append(nsd_mapdata(subjix,'lh.white','fsaverage',a1,badval=0))
+    data.append(
+        nsd_mapdata(
+            subjix,
+            'lh.white',
+            'fsaverage',
+            a1,
+            badval=0
+        )
+    )
 
 # Write out the results to an .mgz file.
 fsdir = os.path.join(nsd_dir, 'freesurfer', 'fsaverage')
-nsd_savemgz(data,'lh.testG.mgz',fsdir)
+nsd_write_fs(
+    data,
+    'lh.testG.mgz',
+    fsdir)
 
 # Inspect on fsaverage's lh.inflated surface:
 #   lh.testG.mgz
