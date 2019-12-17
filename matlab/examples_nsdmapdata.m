@@ -102,7 +102,8 @@ for p=1:3
 end
 
 % Now we average results across the three cortical depths and use nearest-neighbor
-% interpolation to bring the result to fsaverage.
+% interpolation to bring the result to fsaverage. (Mapping to/from fsaverage always
+% involves nearest-neighbor interpolation, so we just use [] for <interptype>.)
 fsdir = [nsd_datalocation '/freesurfer/fsaverage'];
 nsd_mapdata(subjix,'lh.white','fsaverage',mean(data,2),[],0,'lh.testF.mgz',[],fsdir);
 
