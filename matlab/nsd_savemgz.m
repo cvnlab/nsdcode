@@ -5,11 +5,11 @@ function nsd_savemgz(data,file0,fsdir)
 % <data> is V x D (where D >= 1) with surface data for one or more datasets.
 %   No matter what format <data> is in, it appears that FreeSurfer always
 %   writes .mgz files in single (float, 32-bit) format.
-% <file0> is the path to a .mgz file to write. This file must conform to
-%   the format [lh,rh].XXX.mgz.
+% <file0> is the path to a .mgz (or .mgh) file to write. This file must conform to
+%   the format [lh,rh].XXX.[mgz,mgh].
 % <fsdir> is the path to the FreeSurfer subject directory.
 %
-% Save MGZ file.
+% Save MGZ file or MGH file (uncompressed).
 
 % ensure directory exists
 mkdirquiet(stripfile(file0));
