@@ -15,7 +15,7 @@ function transformeddata = nsd_mapdata(subjix,sourcespace,targetspace,sourcedata
 % <badval> (optional) is the value to use for invalid locations. Default: NaN.
 % <outputfile> (optional) is:
 %   (1) a file.nii or file.nii.gz file to write to
-%   (2) a [lh,rh].file.mgz file to write to
+%   (2) a [lh,rh].file.[mgz,mgh] file to write to
 %   Default is [] which means to not write out a file.
 % <outputclass> (optional) is the output format to use (e.g. 'single').
 %   Default is to use the class of <sourcedata>. Note that we always perform
@@ -28,8 +28,8 @@ function transformeddata = nsd_mapdata(subjix,sourcespace,targetspace,sourcedata
 %
 % (1) volume-to-volume
 %     This includes [anat* | func* | MNI] -> [anat* | func* | MNI].
-%     Note that within-space transforms are not implemented (e.g. anat1pt0 to anat0pt8),
-%     but that is probably not very useful anyway.
+%     Note that within-space transforms are implemented for anat (e.g. anat1pt0 to anat0pt8),
+%     but not for func.
 %
 % (2) volume-to-nativesurface
 %     This includes [anat* | func* | MNI] -> [white | pial | layerB1 | layerB2 | layerB3].
@@ -78,9 +78,9 @@ function transformeddata = nsd_mapdata(subjix,sourcespace,targetspace,sourcedata
 %
 % Details on the 'wta' and 'surfacewta':
 %   These schemes are winner-take-all schemes. The sourcedata must consist of discrete 
-% integer labels. Each integer is separately mapped as a binary volume using 
-% linear interpolation, and the integer resulting in the largest value at a given
-% location is assigned to that location. 
+% integer labels. Each integer is separately mapped as a binary volume, and the integer
+% resulting in the largest value at a given location is assigned to that location.
+% This mechanism is useful for ROI labelings.
 
 % inputs
 if ~exist('interptype','var') || isempty(interptype)
@@ -163,10 +163,30 @@ case 'MNI'
   voxelsize = 1;
 end
 
+% do it for the source
+if ~iscell(sourcespace)
+  switch sourcespace
+  case 'anat0pt5'
+    sourcevoxelsize = 0.5;
+  case 'anat0pt8'
+    sourcevoxelsize = 0.8;
+  case 'anat1pt0'
+    sourcevoxelsize = 1.0;
+  case 'func1pt0'
+    sourcevoxelsize = 1.0;
+  case 'func1pt8'
+    sourcevoxelsize = 1.8;
+  case 'MNI'
+    sourcevoxelsize = 1;
+  end
+end
+
 % load transform
 switch casenum
 case 1
-  a1 = getfield(load_untouch_nii(tfile),'img');  % X x Y x Z x 3
+  if exist(tfile,'file')  % anat-to-anat does not have files
+    a1 = getfield(load_untouch_nii(tfile),'img');  % X x Y x Z x 3
+  end
 case {2 3}
   a1 = squish(load_mgh(tfile),3);                 % V x 3 (decimal coordinates) or V x 1 (index)
 case 4
@@ -209,15 +229,31 @@ end
 switch casenum
 case 1    % volume-to-volume
 
-  % construct coordinates
-  coords = [flatten(a1(:,:,:,1)); flatten(a1(:,:,:,2)); flatten(a1(:,:,:,3));];
-  coords(coords==9999) = NaN;  % ensure that 9999 locations will propagate as NaN
+  % handle within-space transforms specially
+  if ~isempty(regexp(sourcespace,'^anat')) && ~isempty(regexp(targetspace,'^anat'))
+    
+    % process each volume, relying heavily on changevolumeres
+    transformeddata = cast([],outputclass);
+    for p=1:size(sourcedata,4)
+      fprintf('working on volume %d of %d.\n',p,size(sourcedata,4));
+      transformeddata(:,:,:,p) = changevolumeres(sourcedata(:,:,:,p),repmat(sourcevoxelsize,[1 3]),repmat(res,[1 3]),isequal(interptype,'wta'));
+    end
+    
+  % otherwise, this is the standard case
+  else
 
-  % interpolate, fill the bad values, and set the output class
-  transformeddata = cast([],outputclass);
-  for p=1:size(sourcedata,4)
-    transformeddata(:,:,:,p) = cast(nanreplace(reshape(ba_interp3_wrapper(sourcedata(:,:,:,p), ...
-                                    coords,interptype),sizefull(a1,3)),badval),outputclass);
+    % construct coordinates
+    coords = [flatten(a1(:,:,:,1)); flatten(a1(:,:,:,2)); flatten(a1(:,:,:,3));];
+    coords(coords==9999) = NaN;  % ensure that 9999 locations will propagate as NaN
+
+    % interpolate, fill the bad values, and set the output class
+    transformeddata = cast([],outputclass);
+    for p=1:size(sourcedata,4)
+      fprintf('working on volume %d of %d.\n',p,size(sourcedata,4));
+      transformeddata(:,:,:,p) = cast(nanreplace(reshape(ba_interp3_wrapper(sourcedata(:,:,:,p), ...
+                                      coords,interptype),sizefull(a1,3)),badval),outputclass);
+    end
+
   end
 
   % if user wants a file, write it out
@@ -248,6 +284,7 @@ case 2    % volume-to-nativesurface
   % interpolate, fill the bad values, and set the output class
   transformeddata = cast([],outputclass);
   for p=1:size(sourcedata,4)
+    fprintf('working on volume %d of %d.\n',p,size(sourcedata,4));
     transformeddata(:,p) = cast(nanreplace(ba_interp3_wrapper(sourcedata(:,:,:,p), ...
                                     coords,interptype),badval),outputclass);
   end
