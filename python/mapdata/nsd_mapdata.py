@@ -159,7 +159,7 @@ def nsd_mapdata(subjix,
         else:
             # assert(ismember(sourcespace(1: 3), {'lh.' 'rh.'}))
             hemi = sourcespace[:3]
-            tfile = os.path.join(f'{tdir}', f'{hemi}{sourcespace}-to-{targetspace}.mgz')
+            tfile = os.path.join(f'{tdir}', f'{hemi}{sourcespace[3:]}-to-{targetspace}.mgz')
 
     elif casenum == 4:
         tfile = []
