@@ -1,15 +1,22 @@
-function nsd_savemgz(data,file0,fsdir)
+function nsd_savemgz(data,file0,fsdir,numdepth)
 
-% function nsd_savemgz(data,file0,fsdir)
+% function nsd_savemgz(data,file0,fsdir,numdepth)
 %
 % <data> is V x D (where D >= 1) with surface data for one or more datasets.
-%   No matter what format <data> is in, it appears that FreeSurfer always
-%   writes .mgz files in single (float, 32-bit) format.
+%   Can also be V x DEPTH x D where DEPTH > 1. In this case, <numdepth> should
+%   be supplied. No matter what format <data> is in, it appears that FreeSurfer 
+%   always writes .mgz files in single (float, 32-bit) format.
 % <file0> is the path to a .mgz (or .mgh) file to write. This file must conform to
 %   the format [lh,rh].XXX.[mgz,mgh].
 % <fsdir> is the path to the FreeSurfer subject directory.
+% <numdepth> (optional) is the number of depths. Default: 1.
 %
 % Save MGZ file or MGH file (uncompressed).
+
+% inputs
+if ~exist('numdepth','var') || isempty(numdepth)
+  numdepth = 1;
+end
 
 % ensure directory exists
 mkdirquiet(stripfile(file0));
@@ -27,8 +34,13 @@ end
 fsmgh = MRIread(mgh0);
 
 % calc
-v = size(data,1);
-d = size(data,2);
+if numdepth==1
+  v = size(data,1);
+  d = size(data,2);
+else
+  v = size(data,1);
+  d = size(data,3);
+end
 
 % sanity check
 if v==1
@@ -37,11 +49,11 @@ end
 
 % mangle fields
 fsmgh.fspec = file0;
-fsmgh.vol = reshape(data,1,v,1,d);  % 1 x V x 1 x D
-fsmgh.volsize = [1 v 1];
+fsmgh.vol = reshape(data,1,v,numdepth,d);  % 1 x V x numdepth x D
+fsmgh.volsize = [1 v numdepth];
 fsmgh.height = 1;
 fsmgh.width = v;
-fsmgh.depth = 1;
+fsmgh.depth = numdepth;
 fsmgh.nframes = d;
 fsmgh.nvoxels = v;
 
