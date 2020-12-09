@@ -17,8 +17,9 @@ from mapdata.utils import makeimagestack
 # The resulting T1 volume might be useful for viewing volume-based
 # fMRI results against the anatomy.
 subjix = 1
-nsd_dir = nsd_datalocation()
-nsd_betas = nsd_datalocation('betas')
+base_path = os.path.join('/rds','projects','c','charesti-start','data', 'NSD')
+nsd_dir = nsd_datalocation(base_path=base_path)
+nsd_betas = nsd_datalocation(base_path=base_path, dir0='betas')
 
 sourcedata = f'{nsd_dir}/ppdata/subj{subjix:02d}/anat/T1_0pt8_masked.nii.gz'
 sourcespace = 'anat0pt8'

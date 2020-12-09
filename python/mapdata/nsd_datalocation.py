@@ -15,7 +15,14 @@ def nsd_datalocation(base_path=None, dir0=None):
     #             'nsd')
 
     if base_path is None:
-        base_path = join('/media', 'charesti-start', 'data', 'NSD')
+        base_path = join(
+            '/rds',
+            'projects',
+            'c',
+            'charesti-start',
+            'data',
+            'NSD'
+            )
 
     if dir0 is None:
         f = join(base_path, 'nsddata')
