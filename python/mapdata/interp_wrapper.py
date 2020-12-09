@@ -43,7 +43,7 @@ def interp_wrapper(vol, coords, interptype='cubic'):
     elif interptype == 'nearest':
         order = 0
     elif interptype == 'wta':
-        order = 1 # linear
+        order = 1  # linear
     else:
         raise ValueError('interpolation method not implemented.')
 
@@ -55,13 +55,15 @@ def interp_wrapper(vol, coords, interptype='cubic'):
     coords[:, bad] = 1
 
     # out of range must become NaN, too
-    bad = np.any(np.c_[bad, \
-                       coords[0, :] < 1, \
-                       coords[0, :] > vol.shape[0],\
-                       coords[1, :] < 1, \
-                       coords[1, :] > vol.shape[1], \
-                       coords[2, :] < 1, \
-                       coords[2, :] > vol.shape[2]], axis=1).astype(bool)
+    bad = np.any(
+        np.c_[
+            bad,
+            coords[0, :] < 1,
+            coords[0, :] > vol.shape[0],
+            coords[1, :] < 1,
+            coords[1, :] > vol.shape[1],
+            coords[2, :] < 1,
+            coords[2, :] > vol.shape[2]], axis=1).astype(bool)
 
     # resample the volume
     if not np.any(np.isreal(vol)):
@@ -102,13 +104,15 @@ def interp_wrapper(vol, coords, interptype='cubic'):
             # which coordinates have no label contribution?
             realbad = np.sum(allvols, axis=0) == 0
 
-            # perform winner-take-all (wta_is is the index relative to alllabels!)
+            # perform winner-take-all (wta_is is the
+            # index relative to alllabels!)
             wta_is = np.argmax(allvols, axis=0)
 
             # figure out the final labeling scheme
             transformeddata = alllabels[wta_is]
 
-            # fill in NaNs for coordinates with no label contribution and bad coordinates too
+            # fill in NaNs for coordinates with no label
+            # contribution and bad coordinates too
             transformeddata[realbad] = np.nan
             transformeddata[bad] = np.nan
 

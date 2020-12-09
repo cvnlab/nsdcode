@@ -4,7 +4,6 @@ import numpy as np
 from mapdata.nsd_output import nsd_write_vol, nsd_write_fs
 from mapdata.interp_wrapper import interp_wrapper as iw
 from mapdata.mapsurfacetovolume import mapsurfacetovolume
-from pdb import set_trace
 
 
 def transform_data(a1_data, sourcedata, tr_args):
@@ -143,7 +142,7 @@ def transform_data(a1_data, sourcedata, tr_args):
 
     # nativesurface-to-fsaverage  or  fsaverage-to-nativesurface
     elif tr_args['casenum'] == 3:
-        set_trace()
+
         # use nearest-neighbor and set the output class
         if n_dims == 1:
             transformeddata = \

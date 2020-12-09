@@ -5,7 +5,6 @@ from mapdata.nsd_datalocation import nsd_datalocation
 from mapdata.parse_case import parse_case
 from mapdata.load_data import load_transform, load_sourcedata
 from mapdata.transform_data import transform_data
-from pdb import set_trace
 
 
 def nsd_mapdata(subjix,
@@ -180,7 +179,6 @@ def nsd_mapdata(subjix,
     a1_data = load_transform(casenum, tfile)
 
     # load sourcedata
-    set_trace()
     sourcedata = load_sourcedata(casenum, sourcedata)
 
     sourceclass = sourcedata.dtype

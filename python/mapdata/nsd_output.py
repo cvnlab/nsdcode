@@ -29,12 +29,11 @@ def nsd_write_vol(data, res, outputfile, origin=None):
     # affine
     affine = np.diag([res]*3 + [1])
     if origin is not None:
-        affine[0,-1] = -origin[0]*res
-        affine[1,-1] = -origin[1]*res
-        affine[2,-1] = -origin[2]*res
+        affine[0, -1] = -origin[0]*res
+        affine[1, -1] = -origin[1]*res
+        affine[2, -1] = -origin[2]*res
     else:
         raise ValueError('i need to have an origin for the affine.')
-
 
     # write the nifti volume
     img = nib.Nifti1Image(
