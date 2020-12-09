@@ -1,5 +1,6 @@
 """nsd_output
 """
+import os
 import numpy as np
 import nibabel as nib
 import nibabel.freesurfer.mghformat as fsmgh
@@ -43,6 +44,7 @@ def nsd_write_vol(data, res, outputfile, origin=None):
 
     img.to_filename(outputfile)
 
+
 def nsd_write_fs(data, outputfile, fsdir):
     """similar to nsd_vrite_vol but for surface mgz
 
@@ -66,6 +68,9 @@ def nsd_write_fs(data, outputfile, fsdir):
         raise ValueError('wrong outpufile.')
 
     mgh0 = f'{fsdir}/surf/{hemi}.w-g.pct.mgh'
+
+    if not os.path.exists(mgh0):
+        mgh0 = f'{fsdir}/surf/{hemi}.orig.avg.area.mgh'
 
     img = fsmgh.load(mgh0)
 

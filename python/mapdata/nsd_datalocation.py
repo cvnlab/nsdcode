@@ -1,7 +1,7 @@
 from os.path import join
 
 
-def nsd_datalocation(dir0=None):
+def nsd_datalocation(base_path=None, dir0=None):
     """convenience function to find data on your system
 
     Args:
@@ -14,7 +14,8 @@ def nsd_datalocation(dir0=None):
     # base_path = join('/home', 'surly-raid4', 'kendrick-data',
     #             'nsd')
 
-    base_path = join('/media', 'charesti-start','data','NSD')             
+    if base_path is None:
+        base_path = join('/media', 'charesti-start', 'data', 'NSD')
 
     if dir0 is None:
         f = join(base_path, 'nsddata')

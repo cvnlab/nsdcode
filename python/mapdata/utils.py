@@ -1,13 +1,22 @@
 import numpy as np
 from math import floor, ceil
 
+
 def isnotfinite(arr):
+    """[utility function for finding non-finites]
+
+    Args:
+        arr (numpy array): array to find non-finites in
+
+    Returns:
+        [bool]: boolean indicating the non-finite elements
+    """
     res = np.isfinite(arr)
     np.bitwise_not(res, out=res)  # in-place
     return res
 
-def makeimagestack(m):
 
+def makeimagestack(m):
     """
     def makeimagestack(m)
 
@@ -18,8 +27,8 @@ def makeimagestack(m):
     find the minimum possible to fit all the images in.
     """
 
-    bordersize = 1 
-    
+    bordersize = 1
+
     # calc
     nrows, ncols, numim = m.shape
     mx = np.nanmax(m.ravel())
@@ -30,11 +39,8 @@ def makeimagestack(m):
     cols = ceil(numim/rows)
     csize = [rows, cols]
 
-    rowstop = rows-1
-
     # calc
     chunksize = csize[0]*csize[1]
-    numchunks = ceil(numim/chunksize)
 
     # total cols and rows for adding border to slices
     tnrows = nrows+bordersize
@@ -63,10 +69,59 @@ def makeimagestack(m):
     return flatmap
 
 
-"""
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-fig, ax = plt.subplots()
-im = ax.imshow(flatmap, cmap=cm.coolwarm)
-plt.show()
-"""
+def zerodiv(data1, data2, val=0, wantcaution=1):
+    """zerodiv(data1,data2,val,wantcaution)
+    Args:
+        <data1>,<data2> are matrices of the same size or either
+                        or both can be scalars.
+        <val> (optional) is the value to use when <data2> is 0.
+                        default: 0.
+        <wantcaution> (optional) is whether to perform special
+                        handling of weird cases (see below).
+                        default: 1.
+        calculate data1./data2 but use <val> when data2 is 0.
+        if <wantcaution>, then if the absolute value of one or
+                        more elements of data2 is less than 1e-5
+                        (but not exactly 0), we issue a warning
+                        and then treat these elements as if they
+                        are exactly 0.
+        if not <wantcaution>, then we do nothing special.
+
+    note some weird cases:
+    if either data1 or data2 is [], we return [].
+    NaNs in data1 and data2 are handled in the usual way.
+
+    """
+
+    # handle special case of data2 being scalar
+    if np.isscalar(data2):
+        if data2 == 0:
+            f = np.tile(val, data1.shape)
+        else:
+            if wantcaution and abs(data2) < 1e-5:
+                print(
+                    'warning: abs value of divisor is less than 1e-5.'
+                    'treating the divisor as 0.')
+                f = np.tile(val, data1.shape)
+            else:
+                f = data1/data2
+
+    else:
+        # do it
+        bad = data2 == 0
+        bad2 = abs(data2) < 1e-5
+        if wantcaution and np.any(bad2.ravel()) and ~bad.ravel():
+            print(
+                'warning: abs value of one or more divisors'
+                'less than 1e-5.treating them as 0.')
+
+        if wantcaution:
+            data2[bad2] = 1
+            f = data1/data2
+            f[bad2] = val
+        else:
+            data2[bad] = 1
+            f = data1/data2
+            f[bad] = val
+
+    return f

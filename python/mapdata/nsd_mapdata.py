@@ -1,12 +1,12 @@
 """nsd_mapdata
 """
 import os
-import numpy as np
-import nibabel as nib
-import nibabel.freesurfer.mghformat as fsmgh
 from mapdata.nsd_datalocation import nsd_datalocation
-from mapdata.nsd_output import nsd_write_vol, nsd_write_fs
-from mapdata.interp_wrapper import interp_wrapper as iw
+from mapdata.parse_case import parse_case
+from mapdata.load_data import load_transform, load_sourcedata
+from mapdata.transform_data import transform_data
+from pdb import set_trace
+
 
 def nsd_mapdata(subjix,
                 sourcespace,
@@ -123,6 +123,18 @@ def nsd_mapdata(subjix,
        mapped as a binary volume using linear interpolation, and the
        integer resulting in the largest value at a given location is
        assigned to that location.
+
+     In the case of the target being MNI, we are going to write out LPI NIFTIs.
+        so, we have to flip the first dimension so that the first voxel is
+        indeed Left. also, in ITK-SNAP, the MNI template has world (ITK)
+        coordinates at (0,0,0) which corresponds to voxel coordinates
+        (91,127,73). These voxel coordinates are relative to RPI. So, for the
+        origin of our LPI file that we will write, we need to make sure that we
+        "flip" the first coordinate. The MNI volume has dimensions
+        [182 218 182], so we subtract the first coordinate from 183.
+        transformeddata = flipdim(transformeddata,1);  # now, it's in LPI
+        origin = [183-91 127 73]
+
     """
 
     # setup
@@ -138,35 +150,8 @@ def nsd_mapdata(subjix,
     if badval is None:
         badval = 0
 
-    # figure out what case we are in
-    if sourcespace == 'fsaverage' or targetspace == 'fsaverage':
-        casenum = 3
-    elif targetspace[:3] == 'lh.' or targetspace[:3] == 'rh.':
-        casenum = 2
-    elif sourcespace[:2] == 'lh.' or sourcespace[:2] == 'rh.':
-        casenum = 4
-    else:
-        casenum = 1
-
-    # deal with basic setup
-    if casenum == 1:
-        tfile = os.path.join(f'{tdir}',
-                             f'{sourcespace}-to-{targetspace}.nii.gz')
-    elif casenum == 2 or casenum == 3:
-        if targetspace[:3] == 'lh.' or targetspace[:3] == 'rh.':
-            hemi = targetspace[:3]
-            tfile = os.path.join(f'{tdir}', f'{hemi}{sourcespace}-to-{targetspace[3:]}.mgz')
-        else:
-            # assert(ismember(sourcespace(1: 3), {'lh.' 'rh.'}))
-            hemi = sourcespace[:3]
-            tfile = os.path.join(f'{tdir}', f'{hemi}{sourcespace[3:]}-to-{targetspace}.mgz')
-
-    elif casenum == 4:
-        tfile = []
-        for p in sourcespace:
-            hemi = p[:3]
-            tfile.append(
-                os.path.join(f'{tdir}', f'{hemi}.{targetspace}-to-{p[3:]}.mgz'))
+    # figure out which case
+    casenum, tfile = parse_case(sourcespace, targetspace, tdir)
 
     # for writing target volumes, we need to know the voxel size
     if targetspace == 'anat0pt5':
@@ -180,62 +165,23 @@ def nsd_mapdata(subjix,
         res = 256
     elif targetspace == 'func1pt0':
         voxelsize = 1.0
+        res = None
     elif targetspace == 'func1pt8':
         voxelsize = 1.8
+        res = None
     elif targetspace == 'MNI':
         voxelsize = 1
+        res = None
+    else:
+        voxelsize = None
+        res = None
 
     # load transform
-    if casenum == 1:
-        a1_img = nib.load(tfile)
-        a1 = a1_img.get_data()  # X x Y x Z x 3
-    elif casenum == 2 or casenum == 3:
-        # V x 3 (decimal coordinates) or V x 1 (index)
-        a1_img = nib.load(tfile)
-        a1 = a1_img.get_data()
-        # get rid of extra dims
-        a1 = a1.reshape([a1.shape[0], -1], order='F')
-    elif casenum == 4:
-        a1 = []
-        for p in tfile:
-            a1_img = nib.load(p)
-            a0 = a1_img.get_data()
-            a0 = a0.reshape([a0.shape[0], -1], order='F')
-            # V-across-differentsurfaces x 3 (decimal coordinates)
-            a1.append(a0)
-        # now we vertical stack
-        a1 = np.vstack(a1)
+    a1_data = load_transform(casenum, tfile)
 
     # load sourcedata
-
-    if isinstance(sourcedata, str):
-        if casenum == 1 or casenum == 2 or casenum == 3:
-            if sourcedata[-4:] == '.mgz':
-                source_img = nib.load(sourcedata) 
-                sourcedata = source_img.get_data()
-                sourcedata = sourcedata.reshape([sourcedata.shape[0], -1], order='F') # squish
-                        # sourcedata = squish(load_mgh(sourcedata),3);              # V x D
-            else:
-                source_img = nib.load(sourcedata) 
-                sourcedata = source_img.get_data()
-                # X x Y x Z x D
-
-        elif casenum == 4:
-            sdatatemp = []
-            # sourcedata here could already be a list of volumes, or a list
-            # path pointing to volumes 
-            for p in sourcedata:
-                if isinstance(p, str):
-                    temp = nib.load(p).get_data()
-                    temp = temp.reshape([temp.shape[0], -1])
-                    sdatatemp.append(temp)
-                    # V-across-differentsurfaces x D
-                else:
-                    sdatatemp.append(p)
-
-            sourcedata = np.vstack(sdatatemp)
-    else:
-        print('data array passed')
+    set_trace()
+    sourcedata = load_sourcedata(casenum, sourcedata)
 
     sourceclass = sourcedata.dtype
 
@@ -243,123 +189,23 @@ def nsd_mapdata(subjix,
     if outputclass is None:
         outputclass = sourceclass
 
-    # figure out if we have a 4d nifti as source
-    n_dims = sourcedata.ndim
+    # collect arguments for transform_data
+    transform_args = {
+        'casenum': casenum,
+        'sourcespace': sourcespace,
+        'targetspace': targetspace,
+        'interptype': interptype,
+        'badval': badval,
+        'outputfile': outputfile,
+        'outputclass': outputclass,
+        'voxelsize': voxelsize,
+        'res': res,
+        'fsdir': fsdir}
 
-    # do it
-    if casenum == 1:    # volume-to-volume
+    # apply transform
+    transformeddata = transform_data(
+        a1_data,
+        sourcedata,
+        transform_args)
 
-        x, y, z, _ = a1.shape
-        targetshape = (x, y, z)
-
-        # construct coordinates
-        coords = np.c_[a1[:, :, :, 0].ravel(order='F'), 
-                       a1[:, :, :, 1].ravel(order='F'), 
-                       a1[:, :, :, 2].ravel(order='F')].T
-        # ensure that 9999 locations will propagate as NaN
-        coords[np.where(coords == 9999)] = np.nan
-        coords = coords - 1 # coords is based on Kendrick's 1-based indexing.
-
-        if n_dims==4:
-
-            n_images = sourcedata.shape[3]
-            transformeddata = []
-            for p in range(n_images):
-                tmp = iw(sourcedata[:, :, :, p], coords, interptype=interptype).astype(outputclass)
-                tmp[np.isnan(tmp)] = badval
-                tmp = np.reshape(tmp, targetshape, order='F')
-                transformeddata.append(tmp)
-            
-            # reshape as a 4d volume
-            transformeddata = np.moveaxis(np.asarray(transformeddata),0, -1) 
-        else:
-
-            transformeddata = iw(sourcedata, coords, interptype=interptype).astype(outputclass)
-            transformeddata[np.isnan(transformeddata)] = badval
-            transformeddata = np.reshape(transformeddata, targetshape, order='F')
-
-        # if user wants a file, write it out
-        if outputfile is not None:
-            if targetspace == 'MNI':
-                print('saving image in MNI space')
-                
-                """
-                # in the case of the target being MNI, we are going to write out LPI NIFTIs.
-                # so, we have to flip the first dimension so that the first voxel is indeed
-                # Left. also, in ITK-SNAP, the MNI template has world (ITK) coordinates at
-                # (0,0,0) which corresponds to voxel coordinates (91,127,73). These voxel
-                # coordinates are relative to RPI. So, for the origin of our LPI file that
-                # we will write, we need to make sure that we "flip" the first coordinate.
-                # The MNI volume has dimensions [182 218 182], so we subtract the first
-                # coordinate from 183.
-                # transformeddata = flipdim(transformeddata,1);  # now, it's in LPI
-                # origin = [183-91 127 73]
-
-                """
-                transformeddata = np.flip(transformeddata, axis=0)
-                origin = np.asarray([183-91, 127, 73])-1 # consider -1 here.
-
-            else:            
-                origin = (([1, 1, 1]+np.asarray(transformeddata.shape))/2)-1
-
-            nsd_write_vol(transformeddata, voxelsize, outputfile, origin=origin)
-        
-    elif casenum==2:    # volume-to-nativesurface
-
-        # construct coordinates
-        coords = np.c_[a1[:, 0].ravel(order='F'), 
-                       a1[:, 1].ravel(order='F'), 
-                       a1[:, 2].ravel(order='F')].T
-        coords[np.where(coords==9999)] = np.nan  # ensure that 9999 locations will propagate as NaN
-        coords = coords - 1 # coords is based on Kendrick's 1-based indexing.
-
-
-        if n_dims==4:
-
-            n_images = sourcedata.shape[3]
-            transformeddata = []
-            for p in range(n_images):
-                tmp = iw(sourcedata[:, :, :, p], coords, interptype=interptype).astype(outputclass)
-                tmp[np.isnan(tmp)] = badval
-                transformeddata.append(tmp)
-
-            # reshape as a n-dim volume
-            transformeddata = np.moveaxis(np.asarray(transformeddata),0, -1)
-        else:
-            transformeddata = iw(sourcedata, coords, interptype=interptype).astype(outputclass)
-            transformeddata[np.isnan(transformeddata)] = badval
-            
-
-        # if user wants a file, write it out
-        if outputfile is not None:
-            
-            nsd_write_fs(transformeddata, outputfile, fsdir)
-
-            
-
-    elif casenum == 3:    # nativesurface-to-fsaverage  or  fsaverage-to-nativesurface
-        
-        # use nearest-neighbor and set the output class
-        transformeddata = sourcedata[a1-1,:].astype(outputclass) 
-        # matlab based indexing in a1: 0-based in python
-  
-        # if user wants a file, write it out
-        if outputfile is not None:
-
-            nsd_write_fs(transformeddata, outputfile, fsdir)
-
-    elif casenum == 4:
-        """
-        TODO
-        # do stuff
-        transformeddata = cast(cvnmapsurfacetovolume_helper(sourcedata.',a1.',res,isequal(interptype,'surfacewta'),badval),outputclass);
-        
-        # if user wants a file, write it out
-        if outputfile is not None:
-
-            nsd_write_fs(transformeddata, outputfile, fsdir)
-        
-        """
-
-    
     return transformeddata

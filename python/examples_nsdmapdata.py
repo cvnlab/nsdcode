@@ -4,15 +4,14 @@ examples to use mapdata
 import os
 import numpy as np
 import nibabel as nib
-import matplotlib.pyplot as plt 
-import matplotlib.cm as cm
+import matplotlib.pyplot as plt
 from mapdata.nsd_mapdata import nsd_mapdata
 from mapdata.nsd_datalocation import nsd_datalocation
-from mapdata.nsd_output import nsd_write_vol, nsd_write_fs
+from mapdata.nsd_output import nsd_write_fs
 from mapdata.utils import makeimagestack
 
 
-## Map T1 anatomical to EPI space
+# Map T1 anatomical to EPI space
 
 # Here we map the 0.8-mm T1 to the 1-mm EPI space using cubic interpolation.
 # The resulting T1 volume might be useful for viewing volume-based
@@ -43,15 +42,19 @@ import seaborn as sns
 import pandas as pd
 compare matlab and python
 # testA.nii.gz was generated with the code above in example_nsdmapdata.m
-matlab_img = nib.load('testA.nii.gz').get_data()
-python_img = nib.load(f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz').get_data()
+matlab_img = nib.load(
+    'testA.nii.gz').get_data()
+python_img = nib.load(
+    f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz').get_data()
 d = {'matlab': matlab_img.ravel(),
      'python':python_img.ravel()}
 df = pd.DataFrame(data=d)
 ax = sns.scatterplot(x="matlab", y="python", data=df)
 """
 # let's test going from func1pt8mm to anat0pt8, but for a 4d-nifti
-sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1pt8mm/betas_fithrf_GLMdenoise_RR/betas_session01.nii.gz'  
+sourcedata = \
+    f'{nsd_betas}/ppdata/subj{subjix:02d}/func1pt8mm/' + \
+    'betas_fithrf_GLMdenoise_RR/betas_session01.nii.gz'
 sourcespace = 'func1pt8'
 targetspace = 'anat0pt8'
 interpmethod = 'cubic'
@@ -76,7 +79,7 @@ targetdata = nsd_mapdata(
     targetspace,
     sourcedata,
     interptype=interpmethod,
-    badval=0, 
+    badval=0,
     outputfile=f'test-{sourcespace}-{targetspace}-{interpmethod}.nii.gz')
 
 # show the resulting transform
@@ -236,7 +239,7 @@ nsd_mapdata(
 # This mapping is accomplished using a cubic interpolation of the data
 # at each surface vertex location.
 
-fsdir = os.path.join(nsd_datalocation(), 'freesurfer',f'subj{subjix:02d}')
+fsdir = os.path.join(nsd_datalocation(), 'freesurfer', f'subj{subjix:02d}')
 sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1mm/betas_fithrf_GLMdenoise_RR/R2_session01.nii.gz'  
 nsd_mapdata(
     subjix,
@@ -355,12 +358,12 @@ data = np.vstack(np.asarray(data))
 
 # Now we average results across the three cortical depths and use nearest-neighbor
 # interpolation to bring the result to fsaverage.
-fsdir = os.path.join(nsd_datalocation, 'freesurfer', 'fsaverage')
+fsdir = os.path.join(nsd_datalocation(), 'freesurfer', 'fsaverage')
 nsd_mapdata(
     subjix,
     'lh.white',
     'fsaverage',
-    np.mean(data, axis=1),
+    np.mean(data, axis=0),
     interptype=None,
     badval=0,
     outputfile='lh.testF.mgz',
@@ -377,7 +380,8 @@ nsd_mapdata(
 # Here we load each subject's native curvature and map it to fsaverage.
 data = []
 for subjix in range(8):
-    a1 = nib.load(f'{nsd_dir}/freesurfer/subj{subjix:02d}/surf/lh.curv').get_data()
+    a1 = nib.load(
+        f'{nsd_dir}/freesurfer/subj{subjix:02d}/surf/lh.curv').get_fdata()
     data.append(
         nsd_mapdata(
             subjix,
@@ -399,14 +403,28 @@ nsd_write_fs(
 #   lh.testG.mgz
 # Confirm that the subjects are reasonably well aligned.
 
+# test case for polar angle data
+subjix = 1
+sourcedata = f'{nsd_dir}/freesurfer/subj{subjix:02d}/label/lh.prfangle.mgz'
+sourcespace = 'lh.white'
+targetspace = 'fsaverage'
+nsd_mapdata(
+    subjix,
+    sourcespace,
+    targetspace,
+    sourcedata,
+    interptype='cubic',
+    badval=0,
+    outputfile='lh.testH.mgz',
+    fsdir=fsdir)
+# Map surface-oriented results to volume space.
 
-## Map surface-oriented results to volume space.
-
-# Here take the Kastner2015 atlas (as prepared in the native subject surface's space),
-# associate it with the vertices of the three cortical depth surfaces, and use
-# a winner-take-all approach to convert these surface data to a 0.8-mm volume.
-# Notice that this demonstrates the ability to aggregate data across left and right
-# hemispheres before converting to a volume.
+# Here take the Kastner2015 atlas (as prepared in the native subject surface's
+# space), associate it with the vertices of the three cortical depth surfaces,
+# and use a winner-take-all approach to convert these surface data to a 0.8-mm
+# volume.
+# Notice that this demonstrates the ability to aggregate data across left
+# and right hemispheres before converting to a volume.
 
 """
 TODO
