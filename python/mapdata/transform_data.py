@@ -4,7 +4,7 @@ import numpy as np
 from mapdata.nsd_output import nsd_write_vol, nsd_write_fs
 from mapdata.interp_wrapper import interp_wrapper as iw
 from mapdata.mapsurfacetovolume import mapsurfacetovolume
-
+from tqdm import tqdm
 
 def transform_data(a1_data, sourcedata, tr_args):
     """transform_data
@@ -49,7 +49,7 @@ def transform_data(a1_data, sourcedata, tr_args):
 
             sourcedata = np.moveaxis(sourcedata, -1, 0)
 
-            for sdata in sourcedata:
+            for sdata in tqdm(sourcedata, desc='volumes'):
                 tmp = iw(
                     sdata,
                     coords,
@@ -108,7 +108,7 @@ def transform_data(a1_data, sourcedata, tr_args):
             transformeddata = []
 
             sourcedata = np.moveaxis(sourcedata, -1, 0)
-            for sdata in sourcedata:
+            for sdata in tqdm(sourcedata, desc='volumes'):
                 tmp = iw(
                     sdata,
                     coords,
