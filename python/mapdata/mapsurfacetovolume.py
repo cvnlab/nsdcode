@@ -5,6 +5,7 @@ from scipy import sparse
 from mapdata.utils import zerodiv
 from pdb import set_trace
 
+
 def mapsurfacetovolume(data, vertices, res, specialmode, emptyval):
     """mapsurfacetovolume(data, vertices, res, specialmode, emptyval)
 
@@ -45,44 +46,44 @@ def mapsurfacetovolume(data, vertices, res, specialmode, emptyval):
                 # away from that voxel index
                 if x_n == 1:
                     # ceil-val  (.1 means use weight of .9)
-                    x_r = np.ceil(vertices[0, :])
+                    x_r = np.ceil(vertices[0, :]).astype(np.int)
                     x_d = x_r - vertices[0, :]
                 else:
                     # val-floor (.1 means use weight of .9)
-                    x_r = np.floor(vertices[0, :])
+                    x_r = np.floor(vertices[0, :]).astype(np.int)
                     x_d = vertices[0, :] - x_r
 
                 if y_n == 1:
-                    y_r = np.ceil(vertices[1, :])
+                    y_r = np.ceil(vertices[1, :]).astype(np.int)
                     y_d = y_r - vertices[1, :]
                 else:
-                    y_r = np.floor(vertices[1, :])
+                    y_r = np.floor(vertices[1, :]).astype(np.int)
                     y_d = vertices[1, :] - y_r
 
                 if z_n == 1:
-                    z_r = np.ceil(vertices[2, :])
+                    z_r = np.ceil(vertices[2, :]).astype(np.int)
                     z_d = z_r - vertices[2, :]
                 else:
-                    z_r = np.floor(vertices[3, :])
+                    z_r = np.floor(vertices[2, :]).astype(np.int)
                     z_d = vertices[2, :] - z_r
 
                 # calc # 1 x vertices with the voxel index to go to
-                voxel_is = np.ravel_multi_index(
-                    (res, res, res),
-                    dims=(x_r, y_r, z_r),
+                voxel_is = np.ravel_multi_index(                    
+                    (x_r-1, y_r-1, z_r-1),
+                    dims=(res, res, res),
                     order='F')
                 # 1 x vertices with the weight to assign
                 voxel_w = (1 - x_d) + (1 - y_d) + (1 - z_d)
 
                 # construct the entries and add the old one in
                 x_new = sparse.coo_matrix(
-                    voxel_w,
-                    (vert_range, voxel_is),
+                    (voxel_w, (vert_range, voxel_is)),
                     shape=(n_vertices, n_voxels))
                 x_new = x_old + x_new
                 x_old = x_new
 
     # do it
+    set_trace()
     if specialmode == 0:
 
         # each voxel is assigned a weighted sum of vertex values.
@@ -114,27 +115,27 @@ def mapsurfacetovolume(data, vertices, res, specialmode, emptyval):
         for data_q in np.arange(n_datasets):
 
             # figure out discrete integer labels
-            alllabels = np.union1d(data[data_q, :], []).flatten()
-            assert np.all(np.isfinite(alllabels))
+            all_labels = np.unique(data[data_q, :]).astype(np.int).flatten()
+            assert np.all(np.isfinite(all_labels))
 
             # expand data into separate channels
             # n_voxels x vertices
-            datanew = np.zeros(len(alllabels), data.shape[1])
-            for c_label in alllabels:
-                datanew[c_label, :] = data[data_q, :] == c_label
+            data_new = np.zeros((len(all_labels), data.shape[1]))
+            for c_label in all_labels:
+                data_new[c_label, :] = data[data_q, :] == c_label
 
             # take the vertex data and map to voxels
-            mapped = datanew*x_new      # n_voxels x voxels
+            mapped = data_new*x_new      # n_voxels x voxels
 
             # which voxels have no vertex contribution?
             bad = np.sum(mapped, axis=0) == 0
 
             # perform winner-take-all
-            # (mapped is the index relative to alllabels!)
+            # (mapped is the index relative to all_labels!)
             mapped = np.argmax(mapped, axis=0)
 
             # figure out the final labeling scheme
-            finaldata = alllabels[mapped]
+            finaldata = all_labels[mapped]
 
             # put in <emptyval>
             finaldata[bad] = emptyval
@@ -146,5 +147,6 @@ def mapsurfacetovolume(data, vertices, res, specialmode, emptyval):
                     [res, res, res],
                     order='F')
                 )
+        
 
     return transformeddata

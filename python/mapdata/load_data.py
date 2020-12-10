@@ -50,7 +50,22 @@ def load_sourcedata(casenum, sourcedata):
 
     """
     # load sourcedata
-    if isinstance(sourcedata, str):
+    if isinstance(sourcedata, list):
+        sdatatemp = []
+        # sourcedata here could already be a list of volumes, or a 
+        # list of paths pointing to volumes
+        for p in sourcedata:
+            if isinstance(p, str):
+                temp = nib.load(p).get_fdata()
+                temp = temp.reshape([temp.shape[0], -1])
+                sdatatemp.append(temp)
+                # V-across-differentsurfaces x D
+            else:
+                sdatatemp.append(p)
+
+            sourcedata = np.vstack(sdatatemp)
+
+    elif isinstance(sourcedata, str):
         if casenum in (1, 2, 3):
             if sourcedata[-4:] == '.mgz':
                 source_img = nib.load(sourcedata)
@@ -63,20 +78,6 @@ def load_sourcedata(casenum, sourcedata):
                 sourcedata = source_img.get_fdata()
                 # X x Y x Z x D
 
-        elif casenum == 4:
-            sdatatemp = []
-            # sourcedata here could already be a list of volumes, or a list
-            # path pointing to volumes
-            for p in sourcedata:
-                if isinstance(p, str):
-                    temp = nib.load(p).get_fdata()
-                    temp = temp.reshape([temp.shape[0], -1])
-                    sdatatemp.append(temp)
-                    # V-across-differentsurfaces x D
-                else:
-                    sdatatemp.append(p)
-
-            sourcedata = np.vstack(sdatatemp)
     else:
         print('data array passed')
 

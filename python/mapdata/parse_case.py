@@ -20,7 +20,9 @@ def parse_case(sourcespace, targetspace, tdir):
     hemi = None
 
     # figure out what case we are in
-    if sourcespace == 'fsaverage' or targetspace == 'fsaverage':
+    if isinstance(sourcespace, list):
+        casenum = 4
+    elif sourcespace == 'fsaverage' or targetspace == 'fsaverage':
         casenum = 3
     elif targetspace[:3] == 'lh.' or targetspace[:3] == 'rh.':
         casenum = 2
@@ -28,6 +30,10 @@ def parse_case(sourcespace, targetspace, tdir):
         casenum = 4
     else:
         casenum = 1
+
+    if casenum == 4:
+        if not isinstance(sourcespace, list):
+            sourcespace = [sourcespace]
 
     # deal with basic setup
     if casenum == 1:
@@ -51,7 +57,7 @@ def parse_case(sourcespace, targetspace, tdir):
     elif casenum == 4:
         tfile = []
         for c_space in sourcespace:
-            hemi = c_space[:3]
+            hemi = c_space[:2]
             tfile.append(
                 os.path.join(
                     f'{tdir}',

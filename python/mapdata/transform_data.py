@@ -5,6 +5,8 @@ from mapdata.nsd_output import nsd_write_vol, nsd_write_fs
 from mapdata.interp_wrapper import interp_wrapper as iw
 from mapdata.mapsurfacetovolume import mapsurfacetovolume
 from tqdm import tqdm
+from pdb import set_trace
+
 
 def transform_data(a1_data, sourcedata, tr_args):
     """transform_data
@@ -85,7 +87,8 @@ def transform_data(a1_data, sourcedata, tr_args):
                 origin = np.asarray([183-91, 127, 73]) - 1  # consider -1 here.
 
             else:
-                origin = (([1, 1, 1] + np.asarray(transformeddata.shape))/2)-1
+                origin = \
+                    (([1, 1, 1] + np.asarray(transformeddata.shape[:3]))/2)-1
 
             nsd_write_vol(
                 transformeddata,
@@ -177,13 +180,15 @@ def transform_data(a1_data, sourcedata, tr_args):
             tr_args['badval']
         )
 
+        # reshape as a n-dim volume
+        transformeddata = np.moveaxis(np.asarray(transformeddata), 0, -1).squeeze()
+
         # if user wants a file, write it out
         if tr_args['outputfile'] is not None:
-            if tr_args['fsdir'] is None:
-                raise ValueError('missing tr dict key: fsdir')
-            nsd_write_fs(
+            nsd_write_vol(
                 transformeddata,
-                tr_args['outputfile'],
-                tr_args['fsdir'])
+                tr_args['voxelsize'],
+                tr_args['outputfile']
+                )
 
     return transformeddata

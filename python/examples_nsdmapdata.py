@@ -17,7 +17,7 @@ from mapdata.utils import makeimagestack
 # The resulting T1 volume might be useful for viewing volume-based
 # fMRI results against the anatomy.
 subjix = 1
-base_path = os.path.join('/rds','projects','c','charesti-start','data', 'NSD')
+base_path = os.path.join('/media', 'charesti-start', 'data', 'NSD')
 nsd_dir = nsd_datalocation(base_path=base_path)
 nsd_betas = nsd_datalocation(base_path=base_path, dir0='betas')
 
@@ -301,14 +301,17 @@ nsd_mapdata(
 #   lh.testD_layerB1.mgz
 #   lh.testD_layerB2.mgz
 #   lh.testD_layerB3.mgz
-# Notice that the results depend substantially on the surface onto which the data are sampled.
+# Notice that the results depend substantially on the surface onto which
+# the data are sampled.
 
-# We can map multiple datasets in one call to nsd_mapdata.m. In the following example,
-# the file "R2run_session01.nii.gz" contains 12 different R2 values, one for each
-# of the 12 runs conducted in the first NSD session. Each volume is independently
-# mapped onto the lh.layerB2 surface, and the multiple surface-based outputs
-# are saved into a single .mgz file.
-sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1mm/betas_fithrf_GLMdenoise_RR/R2run_session01.nii.gz'  
+# We can map multiple datasets in one call to nsd_mapdata.m. In the following
+# example, the file "R2run_session01.nii.gz" contains 12 different R2 values,
+# one for each of the 12 runs conducted in the first NSD session. Each volume
+# is independently mapped onto the lh.layerB2 surface, and the multiple
+# surface-based outputs are saved into a single .mgz file.
+
+sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/' + \
+    'func1mm/betas_fithrf_GLMdenoise_RR/R2run_session01.nii.gz'
 nsd_mapdata(
     subjix,
     'func1pt0',
@@ -335,20 +338,22 @@ plt.xlabel('Run number')
 plt.ylabel('Median R2')
 ##
 
+# Map native subject surface results to fsaverage
 
-## Map native subject surface results to fsaverage
-
-# Here we repeat the mapping for variance explained (R2) for the three cortical depths,
-# accruing results in the workspace.
+# Here we repeat the mapping for variance explained (R2) for
+# the three cortical depths, # accruing results in the workspace.
 subjix = 1
-sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1pt8mm/betas_fithrf_GLMdenoise_RR/R2_session01.nii.gz'  
+sourcedata = \
+    f'{nsd_betas}/ppdata/subj{subjix:02d}/func1pt8mm/' + \
+    'betas_fithrf_GLMdenoise_RR/R2_session01.nii.gz'
+
 data = []
 for p in range(3):
     data.append(
         nsd_mapdata(
             subjix,
             'func1pt8',
-            'lh.layerB{}'.format(p+1),
+            f'lh.layerB{p+1}',
             sourcedata,
             'cubic',
             badval=0
@@ -357,8 +362,8 @@ for p in range(3):
 
 data = np.vstack(np.asarray(data))
 
-# Now we average results across the three cortical depths and use nearest-neighbor
-# interpolation to bring the result to fsaverage.
+# Now we average results across the three cortical depths and use
+# nearest-neighbor interpolation to bring the result to fsaverage.
 fsdir = os.path.join(nsd_datalocation(), 'freesurfer', 'fsaverage')
 nsd_mapdata(
     subjix,
@@ -376,8 +381,7 @@ nsd_mapdata(
 #   lh.testD_layerB2.mgz
 
 
-## Inspect alignment of subjects to fsaverage
-
+# Inspect alignment of subjects to fsaverage
 # Here we load each subject's native curvature and map it to fsaverage.
 data = []
 for subjix in range(8):
@@ -427,14 +431,32 @@ nsd_mapdata(
 # Notice that this demonstrates the ability to aggregate data across left
 # and right hemispheres before converting to a volume.
 
-"""
-TODO
-
 subjix = 1
-sourcedata = [repmat({sprintf('%s/freesurfer/subj%02d/label/lh.Kastner2015.mgz',nsd_datalocation,subjix)},[1 3]) ...
-              repmat({sprintf('%s/freesurfer/subj%02d/label/rh.Kastner2015.mgz',nsd_datalocation,subjix)},[1 3])];
-nsd_mapdata(subjix,{'lh.layerB1' 'lh.layerB2' 'lh.layerB3' ...
-                    'rh.layerB1' 'rh.layerB2' 'rh.layerB3'},'anat0pt8',sourcedata,'surfacewta',-1,'testH.nii.gz');
+
+sourcedata = np.r_[
+    np.tile(
+        f'{nsd_dir}/freesurfer/subj{subjix:02d}/label/lh.Kastner2015.mgz', 3),
+    np.tile(
+        f'{nsd_dir}/freesurfer/subj{subjix:02d}/label/rh.Kastner2015.mgz', 3)
+        ].tolist()
+
+sourcespace = [
+    'lh.layerB1',
+    'lh.layerB2',
+    'lh.layerB3',
+    'rh.layerB1',
+    'rh.layerB2',
+    'rh.layerB3'
+    ]
+targetspace = 'anat0pt8'
+nsd_mapdata(
+    subjix,
+    sourcespace,
+    targetspace,
+    sourcedata,
+    interptype='surfacewta',
+    badval=-1,
+    outputfile='testH.nii.gz')
 
 # Inspect the results by comparing the following:
 #   ppdata/subj01/anat/T1_0pt8_masked.nii.gz

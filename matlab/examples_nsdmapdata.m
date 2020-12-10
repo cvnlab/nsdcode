@@ -5,6 +5,10 @@
 
 
 %% Map T1 anatomical to EPI space
+addpath(genpath('/home/adf/charesti/Documents/software/NIfTI_20140122'))
+addpath(genpath('/home/adf/charesti/Documents/software/knkutils'))
+addpath(genpath('/home/adf/charesti/Documents/software/ba_interp3'))
+addpath(genpath('/home/adf/charesti/Documents/GitHub/nsdcode/matlab'))
 
 % Here we map the 0.8-mm T1 to the 1-mm EPI space using cubic interpolation.
 % The resulting T1 volume might be useful for viewing volume-based

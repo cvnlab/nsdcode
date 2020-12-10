@@ -8,14 +8,14 @@ function f = nsd_datalocation(dir0)
 % Edit this to suit your needs!
 
 if ~exist('dir0','var') || isempty(dir0)
-  f = '/home/surly-raid4/kendrick-data/nsd/nsddata/';
+  f = '/media/charesti-start/data/NSD/nsddata/';
 else
   switch dir0
   case 'betas'
-    f = '/home/surly-raid4/kendrick-data/nsd/nsddata_betas/';
+    f = '/media/charesti-start/data/NSD/nsddata_betas/';
   case 'timeseries'
-    f = '/home/surly-raid4/kendrick-data/nsd/nsddata_timeseries/';
+    f = '/media/charesti-start/data/NSD/nsddata_timeseries/';
   case 'stimuli'
-    f = '/home/surly-raid4/kendrick-data/nsd/nsddata_stimuli/';
+    f = '/media/charesti-start/data/NSD/nsddata_stimuli/';
   end
 end
