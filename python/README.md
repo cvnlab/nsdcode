@@ -3,13 +3,18 @@ Code related to analyzing the Natural Scenes Dataset (In Python)
 
 to install : 
 
+```bash
+cd python
 python setup.py develop
+```
 
 =============================
 
 Code dependencies:
 
 The nsd code has some external dependencies which are listed in requirements.txt
+These are installed automatically when you run the setup above.
+
   1. nibabel
   2. scipy
   3. numpy
