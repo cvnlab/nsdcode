@@ -3,7 +3,6 @@
 import numpy as np
 from scipy import sparse
 from mapdata.utils import zerodiv
-from pdb import set_trace
 
 
 def mapsurfacetovolume(data, vertices, res, specialmode, emptyval):
@@ -68,7 +67,7 @@ def mapsurfacetovolume(data, vertices, res, specialmode, emptyval):
                     z_d = vertices[2, :] - z_r
 
                 # calc # 1 x vertices with the voxel index to go to
-                voxel_is = np.ravel_multi_index(                    
+                voxel_is = np.ravel_multi_index(
                     (x_r-1, y_r-1, z_r-1),
                     dims=(res, res, res),
                     order='F')
@@ -83,7 +82,6 @@ def mapsurfacetovolume(data, vertices, res, specialmode, emptyval):
                 x_old = x_new
 
     # do it
-    set_trace()
     if specialmode == 0:
 
         # each voxel is assigned a weighted sum of vertex values.
@@ -147,6 +145,5 @@ def mapsurfacetovolume(data, vertices, res, specialmode, emptyval):
                     [res, res, res],
                     order='F')
                 )
-        
 
     return transformeddata

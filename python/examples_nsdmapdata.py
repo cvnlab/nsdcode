@@ -464,9 +464,18 @@ nsd_mapdata(
 
 # Now that we have the atlas in the subject's anatomical space, we can now
 # create a version that is in the subject's functional space.
-nsd_mapdata(subjix,'anat0pt8','func1pt0','testH.nii.gz','wta',-1,'testI.nii.gz');  # changed from 'nearest' to 'wta'
+sourcespace = 'anat0pt8'
+targetspace = 'func1pt8'
+sourcedata = 'testH.nii.gz'
+nsd_mapdata(
+    subjix,
+    sourcespace,
+    targetspace,
+    sourcedata,
+    interptype='wta',
+    badval=-1,
+    outputfile='testI.nii.gz')
 
 # Inspect the results by comparing the following:
 #   ppdata/subj01/func1mm/mean.nii.gz
 #   testI.nii.gz
-"""
