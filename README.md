@@ -1,32 +1,51 @@
 # nsdcode
-Code related to analyzing the Natural Scenes Dataset (In Python)
 
-to install : 
+This repository contains nsd_mapdata.{m,py}, a light-weight utility that
+allows the user to map data between different reference spaces
+(e.g. anatomical, functional, volume-based, surface-based) in the NSD dataset.
+Both MATLAB and Python versions of the utility are provided.
+
+For more information on the NSD dataset, please see http://naturalscenesdataset.org.
+
+For examples of how to use nsd_mapdata, please take a look at examples_nsdmapdata.{m,py}.
+
+
+## MATLAB
+
+The MATLAB implementation relies on a few external toolboxes that are provided
+in the matlab/external directory.
+
+To install, unzip the matlab/external/*.zip files in place, and then
+
+```matlab
+addpath(genpath('/path/to/nsdcode/matlab/'));
+```
+
+Because the utility uses some transforms that are provided with the NSD dataset,
+the user must edit **nsd_datalocation.m** with the location of your
+version of the NSD dataset.
+
+
+## Python
+
+To install: 
 
 ```bash
 cd python
 python setup.py develop
 ```
 
-=============================
+Because the utility uses some transforms that are provided with the NSD dataset,
+the user must edit **nsd_datalocation.py** and adjust the base_path to point to
+the location of your version of the NSD dataset.
 
 Code dependencies:
 
-The nsd code has some external dependencies which are listed in requirements.txt
+There are some external dependencies which are listed in requirements.txt
 These are installed automatically when you run the setup above.
+These dependencies include:
 
   1. nibabel
   2. scipy
   3. numpy
   4. tqdm
-
-=============================
-
-General NSD-related examples:
-
-- examples_nsdmapdata.py
-  - This document shows several examples of how to use nsd_mapdata.py
-
-- checkout nsd_datalocation() and adjust the base_path to where your nsd dataset copy is located
-
-=============================
