@@ -234,8 +234,8 @@ case 1    % volume-to-volume
     
     % process each volume, relying heavily on changevolumeres
     transformeddata = cast([],outputclass);
-    for p=1:size(sourcedata,4)
-      fprintf('working on volume %d of %d.\n',p,size(sourcedata,4));
+    for p=size(sourcedata,4):-1:1
+%      fprintf('working on volume %d of %d.\n',p,size(sourcedata,4));
       transformeddata(:,:,:,p) = changevolumeres(sourcedata(:,:,:,p),repmat(sourcevoxelsize,[1 3]),repmat(res,[1 3]),isequal(interptype,'wta'));
     end
     
@@ -248,8 +248,8 @@ case 1    % volume-to-volume
 
     % interpolate, fill the bad values, and set the output class
     transformeddata = cast([],outputclass);
-    for p=1:size(sourcedata,4)
-      fprintf('working on volume %d of %d.\n',p,size(sourcedata,4));
+    for p=size(sourcedata,4):-1:1
+%      fprintf('working on volume %d of %d.\n',p,size(sourcedata,4));
       transformeddata(:,:,:,p) = cast(nanreplace(reshape(ba_interp3_wrapper(sourcedata(:,:,:,p), ...
                                       coords,interptype),sizefull(a1,3)),badval),outputclass);
     end
@@ -283,8 +283,8 @@ case 2    % volume-to-nativesurface
 
   % interpolate, fill the bad values, and set the output class
   transformeddata = cast([],outputclass);
-  for p=1:size(sourcedata,4)
-    fprintf('working on volume %d of %d.\n',p,size(sourcedata,4));
+  for p=size(sourcedata,4):-1:1
+%    fprintf('working on volume %d of %d.\n',p,size(sourcedata,4));
     transformeddata(:,p) = cast(nanreplace(ba_interp3_wrapper(sourcedata(:,:,:,p), ...
                                     coords,interptype),badval),outputclass);
   end
