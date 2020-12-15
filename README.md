@@ -21,9 +21,9 @@ To install, unzip the matlab/external/*.zip files in place, and then
 addpath(genpath('/path/to/nsdcode/matlab/'));
 ```
 
-Because the utility uses some transforms that are provided with the NSD dataset,
-the user must edit **nsd_datalocation.m** with the location of your
-version of the NSD dataset.
+Because the utility relies on transformation files provided with the NSD dataset,
+the user must edit **nsd_datalocation.m** with the location of your local copy
+of the NSD dataset.
 
 
 ## Python
