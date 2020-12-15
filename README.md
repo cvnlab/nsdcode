@@ -35,10 +35,6 @@ cd python
 python setup.py develop
 ```
 
-Because the utility uses some transforms that are provided with the NSD dataset,
-the user must edit **nsd_datalocation.py** and adjust the base_path to point to
-the location of your version of the NSD dataset.
-
 Code dependencies:
 
 There are some external dependencies which are listed in requirements.txt

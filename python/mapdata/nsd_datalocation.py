@@ -1,7 +1,7 @@
 from os.path import join
 
 
-def nsd_datalocation(base_path=None, dir0=None):
+def nsd_datalocation(base_path, dir0=None):
     """convenience function to find data on your system
 
     Args:
@@ -9,19 +9,7 @@ def nsd_datalocation(base_path=None, dir0=None):
 
     Returns: full path to the nsddata directories.
 
-    Edit this to suit your needs!
     """
-    # base_path = join('/home', 'surly-raid4', 'kendrick-data',
-    #             'nsd')
-
-    if base_path is None:
-        base_path = join(
-            '/media',
-            'charesti-start',
-            'data',
-            'NSD'
-            )
-
     if dir0 is None:
         f = join(base_path, 'nsddata')
     elif dir0 == 'betas':

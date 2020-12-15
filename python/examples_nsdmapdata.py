@@ -5,7 +5,7 @@ import os
 import numpy as np
 import nibabel as nib
 import matplotlib.pyplot as plt
-from mapdata.nsd_mapdata import nsd_mapdata
+from mapdata.nsd_mapdata import NSDmapdata
 from mapdata.nsd_datalocation import nsd_datalocation
 from mapdata.nsd_output import nsd_write_fs
 from mapdata.utils import makeimagestack
@@ -18,6 +18,10 @@ from mapdata.utils import makeimagestack
 # fMRI results against the anatomy.
 subjix = 1
 base_path = os.path.join('/media', 'charesti-start', 'data', 'NSD')
+
+# initiate NSDmapdata
+nsd = NSDmapdata(base_path)
+
 nsd_dir = nsd_datalocation(base_path=base_path)
 nsd_betas = nsd_datalocation(base_path=base_path, dir0='betas')
 
@@ -25,7 +29,7 @@ sourcedata = f'{nsd_dir}/ppdata/subj{subjix:02d}/anat/T1_0pt8_masked.nii.gz'
 sourcespace = 'anat0pt8'
 targetspace = 'func1pt8'
 interpmethod = 'cubic'
-targetdata = nsd_mapdata(
+targetdata = nsd.fit(
     subjix,
     sourcespace,
     targetspace,
@@ -59,7 +63,7 @@ sourcedata = \
 sourcespace = 'func1pt8'
 targetspace = 'anat0pt8'
 interpmethod = 'cubic'
-nsd_mapdata(
+nsd.fit(
     subjix,
     sourcespace,
     targetspace,
@@ -74,7 +78,7 @@ nsd_mapdata(
 
 
 interpmethod = 'nearest'
-targetdata = nsd_mapdata(
+targetdata = nsd.fit(
     subjix,
     sourcespace,
     targetspace,
@@ -87,7 +91,7 @@ targetdata = nsd_mapdata(
 plt.imshow(makeimagestack(targetdata))
 
 interpmethod = 'linear'
-targetdata = nsd_mapdata(
+targetdata = nsd.fit(
     subjix,
     sourcespace,
     targetspace,
@@ -101,11 +105,13 @@ plt.imshow(makeimagestack(targetdata))
 
 # test going from func1pt8 to anat0pt8
 sourcespace = 'func1pt8'
-sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/{sourcespace}mm/betas_fithrf_GLMdenoise_RR/meanbeta_session01.nii.gz'
+sourcedata = \
+    f'{nsd_betas}/ppdata/subj{subjix:02d}/{sourcespace}mm/' + \
+    'betas_fithrf_GLMdenoise_RR/meanbeta_session01.nii.gz'
 
 targetspace = 'anat0pt8'
 interpmethod = 'cubic'
-targetdata = nsd_mapdata(
+targetdata = nsd.fit(
     subjix,
     sourcespace,
     targetspace,
@@ -118,7 +124,7 @@ targetdata = nsd_mapdata(
 plt.imshow(makeimagestack(targetdata.astype(np.float32)/300), vmin=-5, vmax=5., cmap='RdBu_r')
 
 interpmethod = 'nearest'
-targetdata = nsd_mapdata(
+targetdata = nsd.fit(
     subjix,
     sourcespace,
     targetspace,
@@ -131,7 +137,7 @@ targetdata = nsd_mapdata(
 plt.imshow(makeimagestack(targetdata.astype(np.float32)/300), vmin=-5, vmax=5., cmap='RdBu_r')
 
 interpmethod = 'linear'
-targetdata = nsd_mapdata(
+targetdata = nsd.fit(
     subjix,
     sourcespace,
     targetspace,
@@ -148,7 +154,7 @@ sourcespace = 'func1pt8'
 sourcedata = f'{nsd_dir}/ppdata/subj{subjix:02d}/{sourcespace}mm/mean.nii.gz'
 targetspace = 'anat0pt8'
 interpmethod = 'cubic'
-targetdata = nsd_mapdata(
+targetdata = nsd.fit(
     subjix,
     sourcespace,
     targetspace,
@@ -169,7 +175,7 @@ plt.imshow(makeimagestack(targetdata), cmap='RdBu_r')
 sourcespace = 'func1pt0'
 sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1mm/betas_fithrf_GLMdenoise_RR/R2_session01.nii.gz' 
 targetspace = 'MNI'
-targetdata = nsd_mapdata(
+targetdata = nsd.fit(
     subjix,
     sourcespace,
     targetspace,
@@ -186,7 +192,7 @@ sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1pt8mm/betas_fithrf_GLMde
 sourcespace = 'func1pt8'
 targetspace = 'MNI'
 interpmethod = 'cubic'
-nsd_mapdata(
+nsd.fit(
     subjix,
     sourcespace,
     targetspace,
@@ -207,7 +213,7 @@ sourcedata = f'{nsd_dir}/ppdata/subj{subjix:02d}/func1mm/mean_session01.nii.gz'
 sourcespace = 'func1pt0'
 targetspace = 'MNI'
 interpmethod = 'cubic'
-nsd_mapdata(
+nsd.fit(
     subjix,
     sourcespace,
     targetspace,
@@ -218,7 +224,7 @@ nsd_mapdata(
 
 
 sourcedata = f'{nsd_dir}/ppdata/subj{subjix:02d}/func1pt8mm/mean_session01.nii.gz'  
-nsd_mapdata(
+nsd.fit(
     subjix,
     'func1pt8',
     'MNI',
@@ -242,7 +248,7 @@ nsd_mapdata(
 
 fsdir = os.path.join(nsd_datalocation(), 'freesurfer', f'subj{subjix:02d}')
 sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1mm/betas_fithrf_GLMdenoise_RR/R2_session01.nii.gz'  
-nsd_mapdata(
+nsd.fit(
     subjix,
     'func1pt0',
     'lh.layerB2',
@@ -259,7 +265,7 @@ sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1pt8mm/betas_fithrf_GLMde
 sourcespace = 'func1pt8'
 targetspace = 'lh.layerB1'
 interpmethod = 'cubic'
-nsd_mapdata(
+nsd.fit(
     subjix,
     sourcespace,
     targetspace,
@@ -275,7 +281,7 @@ nsd_mapdata(
 # "layerB1", "layerB2", and "layerB3" correspond to 25%, 50%, and 75%
 # of the distance from the pial to the white-matter surfaces, respectively.
 
-nsd_mapdata(
+nsd.fit(
     subjix,
     'func1pt0',
     'lh.layerB1',
@@ -286,7 +292,7 @@ nsd_mapdata(
     outputclass=None,
     fsdir=fsdir)
 
-nsd_mapdata(
+nsd.fit(
     subjix,
     'func1pt0',
     'lh.layerB3',
@@ -304,7 +310,7 @@ nsd_mapdata(
 # Notice that the results depend substantially on the surface onto which
 # the data are sampled.
 
-# We can map multiple datasets in one call to nsd_mapdata.m. In the following
+# We can map multiple datasets in one call to nsd.fit.m. In the following
 # example, the file "R2run_session01.nii.gz" contains 12 different R2 values,
 # one for each of the 12 runs conducted in the first NSD session. Each volume
 # is independently mapped onto the lh.layerB2 surface, and the multiple
@@ -312,7 +318,7 @@ nsd_mapdata(
 
 sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/' + \
     'func1mm/betas_fithrf_GLMdenoise_RR/R2run_session01.nii.gz'
-nsd_mapdata(
+nsd.fit(
     subjix,
     'func1pt0',
     'lh.layerB2',
@@ -325,7 +331,7 @@ nsd_mapdata(
 
 # We can also perform the mapping and omit having to write out a file to disk.
 # Instead, we obtain the results in our workspace.
-data = nsd_mapdata(
+data = nsd.fit(
     subjix,
     'func1pt0',
     'lh.layerB2',
@@ -350,7 +356,7 @@ sourcedata = \
 data = []
 for p in range(3):
     data.append(
-        nsd_mapdata(
+        nsd.fit(
             subjix,
             'func1pt8',
             f'lh.layerB{p+1}',
@@ -365,7 +371,7 @@ data = np.vstack(np.asarray(data))
 # Now we average results across the three cortical depths and use
 # nearest-neighbor interpolation to bring the result to fsaverage.
 fsdir = os.path.join(nsd_datalocation(), 'freesurfer', 'fsaverage')
-nsd_mapdata(
+nsd.fit(
     subjix,
     'lh.white',
     'fsaverage',
@@ -388,7 +394,7 @@ for subjix in range(8):
     a1 = nib.load(
         f'{nsd_dir}/freesurfer/subj{subjix:02d}/surf/lh.curv').get_fdata()
     data.append(
-        nsd_mapdata(
+        nsd.fit(
             subjix,
             'lh.white',
             'fsaverage',
@@ -413,7 +419,7 @@ subjix = 1
 sourcedata = f'{nsd_dir}/freesurfer/subj{subjix:02d}/label/lh.prfangle.mgz'
 sourcespace = 'lh.white'
 targetspace = 'fsaverage'
-nsd_mapdata(
+nsd.fit(
     subjix,
     sourcespace,
     targetspace,
@@ -449,7 +455,7 @@ sourcespace = [
     'rh.layerB3'
     ]
 targetspace = 'anat0pt8'
-nsd_mapdata(
+nsd.fit(
     subjix,
     sourcespace,
     targetspace,
@@ -467,7 +473,7 @@ nsd_mapdata(
 sourcespace = 'anat0pt8'
 targetspace = 'func1pt8'
 sourcedata = 'testH.nii.gz'
-nsd_mapdata(
+nsd.fit(
     subjix,
     sourcespace,
     targetspace,
