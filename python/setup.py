@@ -4,7 +4,7 @@ requires = []
 with open('requirements.txt') as reqfile:
     requires = reqfile.read().splitlines()
 
-with open('README.md', encoding='utf-8') as readmefile:
+with open('../README.md', encoding='utf-8') as readmefile:
     long_description = readmefile.read()
 
 
