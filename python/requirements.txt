@@ -1,5 +1,5 @@
 numpy
 scipy
 matplotlib
-nibabel
+nibabel==3.1.0
 tqdm
