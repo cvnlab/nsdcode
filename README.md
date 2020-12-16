@@ -9,6 +9,9 @@ For more information on the NSD dataset, please see http://naturalscenesdataset.
 
 For examples of how to use nsd_mapdata, please take a look at examples_nsdmapdata.{m,py}.
 
+Note that the MATLAB and Python implementations give extremely similar but not
+numerically identical results due to differences in interpolation implementation.
+
 
 ## MATLAB
 
