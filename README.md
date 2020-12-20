@@ -9,8 +9,12 @@ For more information on the NSD dataset, please see http://naturalscenesdataset.
 
 For examples of how to use nsd_mapdata, please take a look at examples_nsdmapdata.{m,py}.
 
-Note that the MATLAB and Python implementations give extremely similar but not
+Known issues:
+* Note that the MATLAB and Python implementations give extremely similar but not
 numerically identical results due to differences in interpolation implementation.
+Also, voxels near the edges of valid locations are also handled slightly differently
+in the Python version.
+* The Python version does not yet implement the anat-to-anat case.
 
 
 ## MATLAB
@@ -48,3 +52,8 @@ These dependencies include:
   2. scipy
   3. numpy
   4. tqdm
+
+
+## Change history
+
+* Version 1.0 (Dec 20, 2020). This is the first official release of the software.
