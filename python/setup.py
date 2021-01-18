@@ -10,7 +10,7 @@ with open('README.md', encoding='utf-8') as readmefile:
 
 setup(
     name='nsdcode',
-    version='0.0.1',
+    version='1.0.0',
     description='Python NSD code',
     url='https://github.com/kendrickkay/nsdcode',
     long_description=long_description,
@@ -29,11 +29,4 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=requires,
-    tests_require=requires,
-    test_suite='tests',
-    entry_points={
-        'console_scripts': [
-            'nsdcode = nsdcode.console:main',
-        ],
-    },
 )

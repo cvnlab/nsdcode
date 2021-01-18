@@ -5,7 +5,7 @@ def nsd_datalocation(base_path, dir0=None):
     """convenience function to find data on your system
 
     Args:
-        dir0 ([type]): is [] | 'betas' | 'timeseries' | 'stimuli'
+        dir0 ([str]): 'betas' | 'timeseries' | 'stimuli' | 'behaviour
 
     Returns: full path to the nsddata directories.
 
@@ -18,5 +18,7 @@ def nsd_datalocation(base_path, dir0=None):
         f = join(base_path, 'nsddata_timeseries')
     elif dir0 == 'stimuli':
         f = join(base_path, 'nsddata_stimuli')
+    elif dir0 == 'behaviour':
+        f = join(base_path, 'nsddata', 'bdata', 'meadows')
 
     return f
