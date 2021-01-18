@@ -9,6 +9,13 @@ For more information on the NSD dataset, please see http://naturalscenesdataset.
 
 For examples of how to use nsd_mapdata, please take a look at examples_nsdmapdata.{m,py}.
 
+Known issues:
+* Note that the MATLAB and Python implementations give extremely similar but not
+numerically identical results due to differences in interpolation implementation.
+Also, voxels near the edges of valid locations are also handled slightly differently
+in the Python version.
+* The Python version does not yet implement the anat-to-anat case.
+
 
 ## MATLAB
 
@@ -21,9 +28,9 @@ To install, unzip the matlab/external/*.zip files in place, and then
 addpath(genpath('/path/to/nsdcode/matlab/'));
 ```
 
-Because the utility uses some transforms that are provided with the NSD dataset,
-the user must edit **nsd_datalocation.m** with the location of your
-version of the NSD dataset.
+Because the utility relies on transformation files provided with the NSD dataset,
+the user must edit **nsd_datalocation.m** with the location of your local copy
+of the NSD dataset.
 
 
 ## Python
@@ -45,3 +52,8 @@ These dependencies include:
   2. scipy
   3. numpy
   4. tqdm
+
+
+## Change history
+
+* Version 1.0 (Dec 20, 2020). This is the first official release of the software.

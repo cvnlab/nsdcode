@@ -27,7 +27,7 @@ nsd_betas = nsd_datalocation(base_path=base_path, dir0='betas')
 
 sourcedata = f'{nsd_dir}/ppdata/subj{subjix:02d}/anat/T1_0pt8_masked.nii.gz'
 sourcespace = 'anat0pt8'
-targetspace = 'func1pt8'
+targetspace = 'func1pt0'
 interpmethod = 'cubic'
 targetdata = nsd.fit(
     subjix,
@@ -40,6 +40,7 @@ targetdata = nsd.fit(
 
 # show the resulting transform
 plt.imshow(makeimagestack(targetdata))
+plt.show()
 
 """
 # test case for comparing the matlab output
@@ -220,7 +221,7 @@ nsd.fit(
     sourcedata,
     interptype=interpmethod,
     badval=0,
-    outputfile='testC_1pt8mm.nii.gz')
+    outputfile='testC_1mm.nii.gz')
 
 
 sourcedata = f'{nsd_dir}/ppdata/subj{subjix:02d}/func1pt8mm/mean_session01.nii.gz'  
@@ -246,7 +247,7 @@ nsd.fit(
 # This mapping is accomplished using a cubic interpolation of the data
 # at each surface vertex location.
 
-fsdir = os.path.join(nsd_datalocation(), 'freesurfer', f'subj{subjix:02d}')
+fsdir = os.path.join(nsd_datalocation(base_path=base_path), 'freesurfer', f'subj{subjix:02d}')
 sourcedata = f'{nsd_betas}/ppdata/subj{subjix:02d}/func1mm/betas_fithrf_GLMdenoise_RR/R2_session01.nii.gz'  
 nsd.fit(
     subjix,
@@ -350,7 +351,7 @@ plt.ylabel('Median R2')
 # the three cortical depths, # accruing results in the workspace.
 subjix = 1
 sourcedata = \
-    f'{nsd_betas}/ppdata/subj{subjix:02d}/func1pt8mm/' + \
+    f'{nsd_betas}/ppdata/subj{subjix:02d}/func1mm/' + \
     'betas_fithrf_GLMdenoise_RR/R2_session01.nii.gz'
 
 data = []
@@ -358,7 +359,7 @@ for p in range(3):
     data.append(
         nsd.fit(
             subjix,
-            'func1pt8',
+            'func1pt0',
             f'lh.layerB{p+1}',
             sourcedata,
             'cubic',
@@ -370,7 +371,7 @@ data = np.vstack(np.asarray(data))
 
 # Now we average results across the three cortical depths and use
 # nearest-neighbor interpolation to bring the result to fsaverage.
-fsdir = os.path.join(nsd_datalocation(), 'freesurfer', 'fsaverage')
+fsdir = os.path.join(nsd_datalocation(base_path=base_path), 'freesurfer', 'fsaverage')
 nsd.fit(
     subjix,
     'lh.white',
@@ -390,9 +391,9 @@ nsd.fit(
 # Inspect alignment of subjects to fsaverage
 # Here we load each subject's native curvature and map it to fsaverage.
 data = []
-for subjix in range(8):
+for subjix in range(1,9):
     a1 = nib.load(
-        f'{nsd_dir}/freesurfer/subj{subjix:02d}/surf/lh.curv').get_fdata()
+        f'{nsd_dir}/freesurfer/subj{subjix:02d}/surf/lh.curvature.mgz').get_fdata().squeeze()
     data.append(
         nsd.fit(
             subjix,
@@ -402,6 +403,7 @@ for subjix in range(8):
             badval=0
         )
     )
+data = np.asarray(data)
 
 # Write out the results to an .mgz file.
 fsdir = os.path.join(nsd_dir, 'freesurfer', 'fsaverage')
@@ -471,7 +473,7 @@ nsd.fit(
 # Now that we have the atlas in the subject's anatomical space, we can now
 # create a version that is in the subject's functional space.
 sourcespace = 'anat0pt8'
-targetspace = 'func1pt8'
+targetspace = 'func1pt0'
 sourcedata = 'testH.nii.gz'
 nsd.fit(
     subjix,
