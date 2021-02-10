@@ -2,7 +2,10 @@
 """
 import numpy as np
 from scipy import sparse
-from mapdata.utils import zerodiv
+from nsdcode.utils import zerodiv
+
+
+__all__ = ["mapsurfacetovolume"]
 
 
 def mapsurfacetovolume(data, vertices, res, specialmode, emptyval):

@@ -1,14 +1,14 @@
 """
-examples to use mapdata
+examples to use nsdcode
 """
 import os
 import numpy as np
 import nibabel as nib
 import matplotlib.pyplot as plt
-from mapdata.nsd_mapdata import NSDmapdata
-from mapdata.nsd_datalocation import nsd_datalocation
-from mapdata.nsd_output import nsd_write_fs
-from mapdata.utils import makeimagestack
+from nsdcode.nsd_mapdata import NSDmapdata
+from nsdcode.nsd_datalocation import nsd_datalocation
+from nsdcode.nsd_output import nsd_write_fs
+from nsdcode.utils import makeimagestack
 
 
 # Map T1 anatomical to EPI space
@@ -17,7 +17,7 @@ from mapdata.utils import makeimagestack
 # The resulting T1 volume might be useful for viewing volume-based
 # fMRI results against the anatomy.
 subjix = 1
-base_path = os.path.join('/media', 'charesti-start', 'data', 'NSD')
+base_path = os.path.join('/path', 'to', 'NSD')
 
 # initiate NSDmapdata
 nsd = NSDmapdata(base_path)

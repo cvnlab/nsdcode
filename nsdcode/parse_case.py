@@ -5,6 +5,8 @@ Returns:
 """
 import os
 
+__all__ = ["parse_case"]
+
 
 def parse_case(sourcespace, targetspace, tdir):
     """parse_case

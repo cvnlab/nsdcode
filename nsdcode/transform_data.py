@@ -1,11 +1,13 @@
 """transform_data
 """
 import numpy as np
-from mapdata.nsd_output import nsd_write_vol, nsd_write_fs
-from mapdata.interp_wrapper import interp_wrapper as iw
-from mapdata.mapsurfacetovolume import mapsurfacetovolume
+from nsdcode.nsd_output import nsd_write_vol, nsd_write_fs
+from nsdcode.interp_wrapper import interp_wrapper as iw
+from nsdcode.mapsurfacetovolume import mapsurfacetovolume
 from tqdm import tqdm
-from pdb import set_trace
+
+
+__all__ = ['transform_data']
 
 
 def transform_data(a1_data, sourcedata, tr_args):

@@ -4,3 +4,4 @@ matplotlib
 nibabel==3.1.0
 tqdm
 pandas
+setuptools_scm

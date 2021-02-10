@@ -1,5 +1,7 @@
 from os.path import join
 
+__all__ = ["nsd_datalocation"]
+
 
 def nsd_datalocation(base_path, dir0=None):
     """convenience function to find data on your system

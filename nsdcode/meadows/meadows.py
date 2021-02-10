@@ -10,6 +10,15 @@ from PIL import Image
 from .utils import reorder_rdm
 
 
+__all__ = [
+    "meadows_subjects",
+    "load_json_data",
+    "get_matask_stim",
+    "get_stim_ids",
+    "get_matask",
+    "get_dragrate"]
+
+
 def meadows_subjects(subj):
     """[summary]
 

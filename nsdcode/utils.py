@@ -1,6 +1,8 @@
 import numpy as np
 from math import floor, ceil
 
+__all__ = ["isnotfinite", "makeimagestack", "zerodiv"]
+
 
 def isnotfinite(arr):
     """[utility function for finding non-finites]

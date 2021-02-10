@@ -5,6 +5,8 @@ import numpy as np
 import nibabel as nib
 import nibabel.freesurfer.mghformat as fsmgh
 
+__all__ = ["nsd_write_vol", "nsd_write_fs"]
+
 
 def nsd_write_vol(data, res, outputfile, origin=None):
     """nsd_write_vol writes volumes to disk

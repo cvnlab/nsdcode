@@ -2,7 +2,9 @@
 """
 import numpy as np
 from scipy.ndimage import map_coordinates
-from mapdata.utils import isnotfinite
+from nsdcode.utils import isnotfinite
+
+__all__ = ["interp_wrapper"]
 
 
 def interp_wrapper(vol, coords, interptype='cubic'):
@@ -12,7 +14,8 @@ def interp_wrapper(vol, coords, interptype='cubic'):
      <vol> is a 3D matrix (can be complex-valued)
      <coords> is 3 x N with the matrix coordinates to interpolate at.
        one or more of the entries can be NaN.
-     <interptype> (optional) is 'nearest' | 'linear' | 'cubic' | 'wta'.  default: 'cubic'.
+     <interptype> (optional) is 'nearest' | 'linear' | 'cubic' | 'wta'.  
+        default: 'cubic'.
 
      this is a convenient wrapper for ba_interp3.  the main problem with
      normal calls to ba_interp3 is that it assigns values to interpolation
@@ -24,12 +27,13 @@ def interp_wrapper(vol, coords, interptype='cubic'):
      as NaN.
 
      another feature is 'wta' (winner-take-all). this involves the assumption
-     that <vol> contains only discrete integers. each distinct integer is mapped
-     as a binary volume (0s and 1s) using linear interpolation to each coordinate,
-     the integer with the largest resulting value at that coordinate wins, and that
-     coordinate is assigned the winning integer.
+     that <vol> contains only discrete integers. each distinct integer is
+     mapped as a binary volume (0s and 1s) using linear interpolation to each
+     coordinate, the integer with the largest resulting value at that
+     coordinate wins, and that coordinate is assigned the winning integer.
 
-     for complex-valued data, we separately interpolate the real and imaginary parts.
+     for complex-valued data, we separately interpolate the real and imaginary
+     parts.
 
      history:
      2019/09/01 - ported to python by ian charest
