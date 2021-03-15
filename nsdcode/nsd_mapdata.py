@@ -29,6 +29,7 @@ class NSDmapdata():
             outputfile=None,
             outputclass=None,
             fsdir=None,
+            transformfile=None,
             ):
         """nsa_mapdata is used to map functional data between coordinate systems
 
@@ -211,6 +212,8 @@ class NSDmapdata():
             res = None
 
         # load transform
+        if transformfile is not None:
+            tfile=transformfile
         a1_data = load_transform(casenum, tfile)
 
         # load sourcedata
