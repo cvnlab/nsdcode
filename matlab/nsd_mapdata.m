@@ -186,6 +186,7 @@ switch casenum
 case 1
   if exist(tfile,'file')  % anat-to-anat does not have files
     a1 = getfield(load_untouch_nii(tfile),'img');  % X x Y x Z x 3
+    % note: no slope/intercept adjustment needed
   end
 case {2 3}
   a1 = squish(load_mgh(tfile),3);                 % V x 3 (decimal coordinates) or V x 1 (index)
@@ -203,7 +204,8 @@ case {1 2 3}
     if isequal(sourcedata(end-3:end),'.mgz')
       sourcedata = squish(load_mgh(sourcedata),3);                    % V x D
     else
-      sourcedata = getfield(load_untouch_nii(sourcedata),'img');     % X x Y x Z x D
+      sourcedatanii = load_untouch_nii(sourcedata);
+      sourcedata = sourcedatanii.img;     % X x Y x Z x D
     end
   end
 case 4
@@ -223,6 +225,13 @@ sourceclass = class(sourcedata);
 % deal with outputclass
 if isempty(outputclass)
   outputclass = sourceclass;
+end
+
+% deal with slope and intercept and/or explicit conversion to double
+if exist('sourcedatanii','var')
+  sourcedata = double(sourcedata) * sourcedatanii.hdr.dime.scl_slope + sourcedatanii.hdr.dime.scl_inter;
+else
+  sourcedata = double(sourcedata);
 end
 
 % do it
