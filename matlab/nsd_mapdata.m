@@ -227,11 +227,10 @@ if isempty(outputclass)
   outputclass = sourceclass;
 end
 
-% deal with slope and intercept and/or explicit conversion to double
-if exist('sourcedatanii','var')
-  sourcedata = double(sourcedata) * sourcedatanii.hdr.dime.scl_slope + sourcedatanii.hdr.dime.scl_inter;
-else
-  sourcedata = double(sourcedata);
+% deal with explicit conversion to double and slope/intercept
+sourcedata = double(sourcedata);
+if exist('sourcedatanii','var') && sourcedatanii.hdr.dime.scl_slope ~= 0
+  sourcedata = sourcedata * sourcedatanii.hdr.dime.scl_slope + sourcedatanii.hdr.dime.scl_inter;
 end
 
 % do it
