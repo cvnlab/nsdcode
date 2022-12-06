@@ -63,11 +63,11 @@ def interp_wrapper(vol, coords, interptype='cubic'):
         np.c_[
             bad,
             coords[0, :] < 0,
-            coords[0, :] >= vol.shape[0],
+            coords[0, :] > vol.shape[0] - 1,
             coords[1, :] < 0,
-            coords[1, :] >= vol.shape[1],
+            coords[1, :] > vol.shape[1] - 1,
             coords[2, :] < 0,
-            coords[2, :] >= vol.shape[2]], axis=1).astype(bool)
+            coords[2, :] > vol.shape[2] - 1], axis=1).astype(bool)
 
     # resample the volume
     if not np.any(np.isreal(vol)):
