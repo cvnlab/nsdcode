@@ -56,7 +56,7 @@ def interp_wrapper(vol, coords, interptype='cubic'):
 
     # bad locations must get set to NaN
     bad = np.any(isnotfinite(coords), axis=0)
-    coords[:, bad] = 0
+    coords[:, bad] = -1
 
     # out of range must become NaN, too
     bad = np.any(
