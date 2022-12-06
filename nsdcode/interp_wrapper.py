@@ -82,6 +82,8 @@ def interp_wrapper(vol, coords, interptype='cubic'):
                 order=order,
                 mode='nearest')
 
+        transformeddata[bad] = np.nan
+
     else:
         # this is the tricky 'wta' case
         if interptype == 'wta':
