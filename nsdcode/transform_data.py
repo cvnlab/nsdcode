@@ -151,11 +151,11 @@ def transform_data(a1_data, sourcedata, tr_args):
         # use nearest-neighbor and set the output class
         if n_dims == 1:
             transformeddata = \
-                sourcedata[np.squeeze(a1_data.astype(np.int)) - 1].astype(
+                sourcedata[np.squeeze(a1_data.astype(int)) - 1].astype(
                     tr_args['outputclass'])
         elif n_dims > 1:
             transformeddata = \
-                sourcedata[np.squeeze(a1_data.astype(np.int)) - 1, :].astype(
+                sourcedata[np.squeeze(a1_data.astype(int)) - 1, :].astype(
                     tr_args['outputclass'])
         # matlab based indexing in a1_data: 0-based in python
 
