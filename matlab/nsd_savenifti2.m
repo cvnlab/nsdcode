@@ -5,7 +5,8 @@ function nsd_savenifti2(data,reffile,file0,tr)
 % <data> is X x Y x Z x D (where D >= 1) with volume data
 %   for one or more datasets. Can be of a specific format
 %   like 'double' or 'int16'.
-% <reffile> is an existing NIFTI file
+% <reffile> is the path to an existing NIFTI file (or can
+%   be the output of load_untouch_nii.m on the file)
 % <file0> is the path to a .nii.gz (or .nii) file to write.
 %   If .gz extension is used, we do the gzip.
 % <tr> (optional) is the TR in seconds to set.
@@ -28,32 +29,34 @@ end
 mkdirquiet(stripfile(file0));
 
 % save NIFTI and gzip it
-a1 = load_untouch_nii(reffile);
-a1.img = data;
+if ischar(reffile)
+  reffile = load_untouch_nii(reffile);
+end
+reffile.img = data;
 switch class(data)
 case 'int16'
-  a1.hdr.dime.datatype = 4;
-  a1.hdr.dime.bitpix = 16;
+  reffile.hdr.dime.datatype = 4;
+  reffile.hdr.dime.bitpix = 16;
 case 'single'
-  a1.hdr.dime.datatype = 16;
-  a1.hdr.dime.bitpix = 32;
+  reffile.hdr.dime.datatype = 16;
+  reffile.hdr.dime.bitpix = 32;
 case 'double'
-  a1.hdr.dime.datatype = 64;
-  a1.hdr.dime.bitpix = 64;
+  reffile.hdr.dime.datatype = 64;
+  reffile.hdr.dime.bitpix = 64;
 otherwise
   error;
 end
-assert(isequal(a1.hdr.dime.dim(2:4),sizefull(data,3)));
-a1.hdr.dime.dim(5) = size(data,4);  % number of volumes
+assert(isequal(reffile.hdr.dime.dim(2:4),sizefull(data,3)));
+reffile.hdr.dime.dim(5) = size(data,4);  % number of volumes
 if size(data,4) > 1
-  a1.hdr.dime.dim(1) = 4;
+  reffile.hdr.dime.dim(1) = 4;
 else
-  a1.hdr.dime.dim(1) = 3;
+  reffile.hdr.dime.dim(1) = 3;
 end
 if ~isempty(tr)
-  a1.hdr.dime.pixdim(5) = tr;
+  reffile.hdr.dime.pixdim(5) = tr;
 end
-save_untouch_nii(a1,file0);
+save_untouch_nii(reffile,file0);
 if wantgz
   gzip(file0); delete(file0);
 end
