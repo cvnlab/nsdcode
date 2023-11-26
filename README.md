@@ -38,12 +38,6 @@ of the NSD dataset.
 To install simply use pip:
 
 ```bash
-pip install nsdcode
-```
-
-or alternatively, clone this repo and install:
-
-```bash
 pip install -r requirements.txt
 pip install .
 ```
