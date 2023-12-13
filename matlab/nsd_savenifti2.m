@@ -3,8 +3,8 @@ function nsd_savenifti2(data,reffile,file0,tr)
 % function nsd_savenifti2(data,reffile,file0,tr)
 % 
 % <data> is X x Y x Z x D (where D >= 1) with volume data
-%   for one or more datasets. Can be of a specific format
-%   like 'double' or 'int16'.
+%   for one or more datasets. Can be of a specific format:
+%   'int16' or 'single' or 'double'.
 % <reffile> is the path to an existing NIFTI file (or can
 %   be the output of load_untouch_nii.m on the file)
 % <file0> is the path to a .nii.gz (or .nii) file to write.
@@ -12,7 +12,7 @@ function nsd_savenifti2(data,reffile,file0,tr)
 % <tr> (optional) is the TR in seconds to set.
 %   Default is [] which means do nothing.
 %
-% Save NIFTI file.
+% Save NIFTI file, inheriting the headers from <reffile>.
 
 % input
 if ~exist('tr','var') || isempty(tr)
