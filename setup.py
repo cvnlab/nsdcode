@@ -25,7 +25,12 @@ def local_version(version):
 opts = dict(
     use_scm_version={"root": ".", "relative_to": __file__,
                      "write_to": op.join("nsdcode", "version.py"),
-                     "local_scheme": local_version}
+                     "local_scheme": local_version},
+    entry_points={
+            'console_scripts': [
+                'nsdmapdata = nsdcode.nsdmapcli:main',
+            ],
+        },
             )
 
 
